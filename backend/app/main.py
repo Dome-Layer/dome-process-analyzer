@@ -30,4 +30,10 @@ app.include_router(auth.router)
 
 @app.get("/api/v1/health", tags=["health"])
 async def health_check():
-    return {"status": "ok"}
+    supabase_status = "ok"
+    try:
+        from app.core.db import get_db
+        get_db().table("saved_analyses").select("analysis_id").limit(1).execute()
+    except Exception:
+        supabase_status = "unavailable"
+    return {"status": "ok", "supabase": supabase_status}

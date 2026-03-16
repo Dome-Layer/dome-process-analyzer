@@ -14,7 +14,7 @@ class ClaudeProvider(LLMProvider):
     """Anthropic Claude LLM provider."""
 
     def __init__(self):
-        self._client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+        self._client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key or None)
         self._model = "claude-sonnet-4-20250514"
 
     async def generate_structured(
@@ -23,12 +23,15 @@ class ClaudeProvider(LLMProvider):
         schema: dict,
         system: str,
     ) -> dict:
+        schema_hint = (
+            f"\n\nOutput schema — use these exact field names:\n{json.dumps(schema, indent=2)}"
+        )
         try:
             response = await self._client.messages.create(
                 model=self._model,
                 max_tokens=8192,
                 system=system,
-                messages=[{"role": "user", "content": prompt}],
+                messages=[{"role": "user", "content": prompt + schema_hint}],
             )
         except anthropic.APIConnectionError as e:
             logger.error("claude_connection_error", error=str(e))

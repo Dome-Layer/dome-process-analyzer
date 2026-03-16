@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Space Grotesk", "Helvetica Neue", sans-serif;
+  --font-body: Outfit, "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+html,
+body {
+  background-color: #fafaf9;
+  color: #0c0c0e;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #e2e2e0 25%,
+    #ededeb 50%,
+    #e2e2e0 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 4px;
+}
+
+/* Staggered section fade-in delays */
+.section-animate {
+  opacity: 0;
+  animation: fadeUp 0.4s ease forwards;
+}
+.section-delay-0 { animation-delay: 0ms; }
+.section-delay-1 { animation-delay: 150ms; }
+.section-delay-2 { animation-delay: 300ms; }
+.section-delay-3 { animation-delay: 450ms; }
+.section-delay-4 { animation-delay: 600ms; }
+.section-delay-5 { animation-delay: 750ms; }
+
+/* Mermaid diagram overrides */
+.mermaid-container .nodeLabel {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid #5b9cb5;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-animate,
+  .skeleton {
+    animation: none;
+    opacity: 1;
+  }
+}

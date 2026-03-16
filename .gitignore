@@ -3,6 +3,12 @@
 .env.local
 .env.*.local
 
+# Node
+node_modules/
+.next/
+out/
+.npm
+
 # Python
 __pycache__/
 *.py[cod]

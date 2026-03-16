@@ -115,7 +115,7 @@ class ClarifyingQuestion(BaseModel):
     id: str
     question: str
     context: str
-    affects: str  # "governance", "automation", "systems", "timing", "steps"
+    affects: list[str]  # e.g. ["governance", "automation", "systems", "timing", "steps"]
 
 
 # -- Root Analysis Model ------------------------------------------------------

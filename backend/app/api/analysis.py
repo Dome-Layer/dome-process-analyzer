@@ -1,7 +1,20 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from typing import Optional
+
+
+def _parse_dt(value: str) -> datetime:
+    """Parse an ISO datetime string from Supabase, tolerating non-standard
+    fractional-second precision (e.g. 5 digits). Python 3.9 fromisoformat()
+    requires exactly 0 or 6 fractional digits; pad/truncate to 6."""
+    value = re.sub(
+        r"\.(\d+)([+Z\-]|$)",
+        lambda m: "." + m.group(1).ljust(6, "0")[:6] + m.group(2),
+        value,
+    )
+    return datetime.fromisoformat(value)
 
 from fastapi import APIRouter, Depends, HTTPException, Header
 
@@ -79,20 +92,19 @@ async def get_analysis(
         .select("*")
         .eq("analysis_id", analysis_id)
         .eq("user_id", user["user_id"])
-        .maybe_single()
         .execute()
     )
     if not result.data:
         raise HTTPException(status_code=404, detail="Analysis not found.")
 
-    row = result.data
+    row = result.data[0]
     analysis = ProcessAnalysis.model_validate(row["analysis_json"])
     return AnalysisDetailResponse(
         analysis_id=analysis_id,
         saved=True,
         analysis=analysis,
-        created_at=datetime.fromisoformat(row["created_at"]),
-        updated_at=datetime.fromisoformat(row["saved_at"]),
+        created_at=_parse_dt(row["created_at"]),
+        updated_at=_parse_dt(row["saved_at"]),
     )
 
 
@@ -176,7 +188,7 @@ async def list_analyses(user: dict = Depends(get_current_user)):
             total_steps=row["total_steps"],
             governance_flags_critical=row["governance_flags_critical"],
             automation_opportunities=row["automation_opportunities"],
-            saved_at=datetime.fromisoformat(row["saved_at"]),
+            saved_at=_parse_dt(row["saved_at"]),
             label=row.get("label"),
         )
         for row in result.data
@@ -203,7 +215,6 @@ async def delete_analysis(
         .select("analysis_id")
         .eq("analysis_id", analysis_id)
         .eq("user_id", user["user_id"])
-        .maybe_single()
         .execute()
     )
     if not check.data:
