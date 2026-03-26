@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
+from app.core.config import settings
 from app.core.db import get_db
 from app.core.logging import get_logger
 from app.models.schemas import (
@@ -52,7 +53,10 @@ async def request_magic_link(body: MagicLinkRequest):
     supabase = get_db()
 
     try:
-        supabase.auth.sign_in_with_otp({"email": body.email})
+        supabase.auth.sign_in_with_otp({
+            "email": body.email,
+            "options": {"email_redirect_to": f"{settings.site_url}/auth/callback"},
+        })
     except Exception as e:
         logger.error("magic_link_send_failed", email_domain=body.email.split("@")[1], error=str(e))
         raise HTTPException(status_code=400, detail=f"Failed to send magic link: {e}")

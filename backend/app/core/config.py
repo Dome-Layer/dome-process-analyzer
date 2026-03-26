@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # App
     environment: Literal["development", "production"] = "development"
     allowed_origins: str = "http://localhost:3000"
+    # Frontend base URL — used as emailRedirectTo in magic link emails.
+    # Must match an allowed redirect URL in Supabase dashboard.
+    site_url: str = "http://localhost:3000"
     cache_ttl_seconds: int = 3600
 
     model_config = {

@@ -100,7 +100,9 @@ def _make_fake_analysis(analysis_id: str = "test-id") -> dict:
 def test_health_check():
     response = client.get("/api/v1/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["supabase"] in ("ok", "unavailable")
 
 
 # -- POST /api/v1/analysis ---------------------------------------------------
