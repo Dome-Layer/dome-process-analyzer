@@ -76,6 +76,9 @@ function AnalysisRow({
         <Badge variant={summary.overall_confidence as "high" | "medium" | "low"}>
           {summary.overall_confidence}
         </Badge>
+        <Link href={`/saved/${summary.analysis_id}`}>
+          <Button variant="secondary">View</Button>
+        </Link>
         <Button
           variant={confirmDelete ? "primary" : "ghost"}
           onClick={handleDelete}

@@ -1,5 +1,6 @@
 import { authHeaders } from "./auth";
 import type {
+  AnalysisDetailResponse,
   AnalysisListResponse,
   AnalysisRequest,
   AnalysisResponse,
@@ -76,6 +77,10 @@ export function saveAnalysis(
     method: "POST",
     body: JSON.stringify(body),
   });
+}
+
+export function getAnalysis(analysisId: string): Promise<AnalysisDetailResponse> {
+  return request<AnalysisDetailResponse>(`/analysis/${analysisId}`);
 }
 
 export function listAnalyses(): Promise<AnalysisListResponse> {
