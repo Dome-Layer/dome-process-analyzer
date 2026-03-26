@@ -28,7 +28,7 @@ app.include_router(analysis.router)
 app.include_router(auth.router)
 
 
-@app.get("/api/v1/health", tags=["health"])
+@app.api_route("/api/v1/health", methods=["GET", "HEAD"], tags=["health"])
 async def health_check():
     supabase_status = "ok"
     try:
