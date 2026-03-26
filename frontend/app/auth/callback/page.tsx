@@ -15,6 +15,18 @@ export default function AuthCallbackPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
+    // Supabase can deliver errors via query string (e.g. disallowed redirect) or
+    // the access token via the URL fragment (implicit flow).
+    const queryParams = new URLSearchParams(window.location.search);
+    const queryError =
+      queryParams.get("error_description") ?? queryParams.get("error");
+
+    if (queryError) {
+      setStatus("error");
+      setErrorMsg(decodeURIComponent(queryError));
+      return;
+    }
+
     const hash = window.location.hash.substring(1); // remove leading #
     const params = new URLSearchParams(hash);
 
