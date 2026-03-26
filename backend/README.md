@@ -17,7 +17,7 @@ cp .env.example .env
 # Edit .env and set your ANTHROPIC_API_KEY and Supabase credentials
 
 # 4. Run the server
-uvicorn app.main:app --reload --port 8000
+python3 -m uvicorn app.main:app --reload --port 8000
 ```
 
 ## Docker
@@ -40,7 +40,7 @@ docker run -p 8000:8000 --env-file .env dome-process-analyzer
 | `POST` | `/api/v1/auth/magic-link` | No | Request a magic link email |
 | `POST` | `/api/v1/auth/verify` | No | Verify a magic link token |
 | `DELETE` | `/api/v1/auth/session` | Yes | Logout |
-| `GET` | `/api/v1/health` | No | Health check |
+| `GET`/`HEAD` | `/api/v1/health` | No | Health check (HEAD supported for UptimeRobot) |
 
 ## Architecture
 
@@ -60,3 +60,22 @@ pytest tests/
 ## Environment Variables
 
 See `.env.example` for all configuration options.
+
+## Deployment (Railway)
+
+The backend is deployed on Railway from the `backend/` subdirectory.
+
+**Required env vars in Railway dashboard:**
+
+| Variable | Description |
+|----------|-------------|
+| `ANTHROPIC_API_KEY` | Claude API key |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_ANON_KEY` | Supabase anon/public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |
+| `ENVIRONMENT` | `production` |
+| `ALLOWED_ORIGINS` | `https://analyzer.domelayer.com` |
+| `SITE_URL` | `https://analyzer.domelayer.com` |
+| `PORT` | `8000` |
+
+**Live URL**: https://dome-process-analyzer-production.up.railway.app
