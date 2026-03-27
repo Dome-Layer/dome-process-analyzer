@@ -79,3 +79,20 @@ The backend is deployed on Railway from the `backend/` subdirectory.
 | `PORT` | `8000` |
 
 **Live URL**: https://dome-process-analyzer-production.up.railway.app
+
+## Supabase Auth Configuration
+
+Magic link emails are routed through a custom SMTP provider (Resend) instead of Supabase's shared SMTP. This removes the 4 emails/hour project-wide limit imposed by the free tier.
+
+**Supabase dashboard → Settings → Authentication → SMTP Settings:**
+
+| Setting | Value |
+|---------|-------|
+| Host | `smtp.resend.com` |
+| Port | `465` |
+| Username | `resend` |
+| Password | Resend API key |
+| Sender email | `noreply@domelayer.com` |
+| Sender name | `Dome Process Analyzer` |
+
+The `domelayer.com` domain is already verified in Resend. Remaining limit: Resend free tier — 100 emails/day, 3,000/month.
