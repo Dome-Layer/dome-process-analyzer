@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import anthropic
 
@@ -26,19 +27,32 @@ class ClaudeProvider(LLMProvider):
         schema_hint = (
             f"\n\nOutput schema — use these exact field names:\n{json.dumps(schema, indent=2)}"
         )
-        try:
-            response = await self._client.messages.create(
-                model=self._model,
-                max_tokens=16384,
-                system=system,
-                messages=[{"role": "user", "content": prompt + schema_hint}],
-            )
-        except anthropic.APIConnectionError as e:
-            logger.error("claude_connection_error", error=str(e))
-            raise ConnectionError(f"Claude API unreachable: {e}") from e
-        except anthropic.APIStatusError as e:
-            logger.error("claude_api_error", status=e.status_code, error=str(e))
-            raise ConnectionError(f"Claude API error ({e.status_code}): {e}") from e
+        last_exc: Exception | None = None
+        for attempt in range(3):
+            try:
+                response = await self._client.messages.create(
+                    model=self._model,
+                    max_tokens=16384,
+                    system=system,
+                    messages=[{"role": "user", "content": prompt + schema_hint}],
+                )
+                last_exc = None
+                break
+            except anthropic.APIConnectionError as e:
+                logger.error("claude_connection_error", error=str(e))
+                raise ConnectionError(f"Claude API unreachable: {e}") from e
+            except anthropic.APIStatusError as e:
+                if e.status_code == 529 and attempt < 2:
+                    wait = 2 ** attempt  # 1s, 2s
+                    logger.warning("claude_overloaded_retry", attempt=attempt + 1, wait=wait)
+                    await asyncio.sleep(wait)
+                    last_exc = e
+                    continue
+                logger.error("claude_api_error", status=e.status_code, error=str(e))
+                raise ConnectionError(f"Claude API error ({e.status_code}): {e}") from e
+
+        if last_exc is not None:
+            raise ConnectionError(f"Claude API overloaded after 3 attempts: {last_exc}") from last_exc
 
         raw_text = response.content[0].text.strip()
 

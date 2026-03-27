@@ -12,7 +12,7 @@ interface SaveButtonProps {
 }
 
 export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, signOut } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -55,6 +55,13 @@ export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
       setSaved(true);
       onSaved?.();
     } catch (err) {
+      const status = (err as { status?: number }).status;
+      if (status === 401) {
+        await signOut();
+        setShowForm(false);
+        setAuthOpen(true);
+        return;
+      }
       const message = err instanceof Error ? err.message : "Save failed.";
       setError(message);
     } finally {
