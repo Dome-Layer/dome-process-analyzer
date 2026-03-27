@@ -29,7 +29,7 @@ class ClaudeProvider(LLMProvider):
         try:
             response = await self._client.messages.create(
                 model=self._model,
-                max_tokens=8192,
+                max_tokens=16384,
                 system=system,
                 messages=[{"role": "user", "content": prompt + schema_hint}],
             )
