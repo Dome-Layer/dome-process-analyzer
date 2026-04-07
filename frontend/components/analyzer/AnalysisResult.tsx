@@ -22,7 +22,7 @@ export function AnalysisResult({ analysis, analysisId, onRefine, refining }: Pro
     <div className="flex flex-col gap-6">
       {/* Version badge if refined */}
       {analysis.analysis_version > 1 && (
-        <p className="font-mono text-[11px] uppercase tracking-dome text-dome-accent-cyan">
+        <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-accent">
           Version {analysis.analysis_version}
         </p>
       )}

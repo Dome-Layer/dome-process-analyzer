@@ -10,44 +10,57 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"Space Grotesk"', '"Helvetica Neue"', "sans-serif"],
-        body: ["Outfit", '"Helvetica Neue"', "sans-serif"],
+        sans: ["Inter", '"Helvetica Neue"', "Arial", "sans-serif"],
         mono: ['"JetBrains Mono"', '"Fira Code"', "monospace"],
+        // Legacy aliases — kept so font-display / font-body classnames still resolve
+        display: ["Inter", '"Helvetica Neue"', "Arial", "sans-serif"],
+        body: ["Inter", '"Helvetica Neue"', "Arial", "sans-serif"],
       },
       colors: {
         dome: {
           bg: {
-            primary: "#FAFAF9",
-            secondary: "#FFFFFF",
-            tertiary: "#F0F0EE",
+            primary: "#FAFAFA",    // page background
+            secondary: "#FFFFFF",  // cards, header, modals
+            tertiary: "#F5F5F5",   // inputs, metric tiles
+            accent: "#E8F3FF",     // accent-tinted surfaces
           },
           text: {
-            primary: "#0C0C0E",
-            secondary: "#2A2A2E",
-            muted: "#8A8A8F",
+            primary: "#0A0A0A",
+            secondary: "#525252",
+            muted: "#A3A3A3",
+            accent: "#0080FF",
           },
           accent: {
-            cyan: "#5B9CB5",
-            purple: "#9A00FF",
-            blue: "#006BDF",
-            lightblue: "#7BB8CF",
+            DEFAULT: "#0080FF",    // electric blue — primary brand accent
+            hover: "#40A8FF",
+            active: "#0066CC",
+            subtle: "#E8F3FF",
+            // Legacy aliases — un-migrated classnames still render the correct colour
+            cyan: "#0080FF",
+            lightblue: "#40A8FF",
           },
-          border: "#E2E2E0",
+          border: {
+            DEFAULT: "#E8E8E8",    // dome-border → same as dome-border-DEFAULT
+            subtle: "#F0F0F0",
+            strong: "#D4D4D4",
+            accent: "#99CCFF",
+          },
           status: {
-            critical: "#B85C5C",
-            major: "#C4A35A",
-            minor: "#5B9CB5",
-            success: "#6B9E78",
+            critical: "#DC2626",
+            major: "#D97706",
+            minor: "#0080FF",
+            success: "#16A34A",
           },
         },
       },
       borderRadius: {
-        dome: "4px",
+        dome: "8px",           // buttons, inputs, small elements
+        "dome-card": "12px",   // cards, modals, panels
       },
       letterSpacing: {
-        dome: "1.4px",
-        "dome-tight": "-1.28px",
-        "dome-tighter": "-1.92px",
+        dome: "0.18em",        // eyebrow / overline uppercase labels
+        "dome-tight": "-0.025em",
+        "dome-tighter": "-0.03em",
       },
       keyframes: {
         fadeUp: {

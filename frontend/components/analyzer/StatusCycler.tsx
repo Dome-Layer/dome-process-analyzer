@@ -31,11 +31,11 @@ export function StatusCycler() {
   return (
     <div className="flex items-center gap-2 h-6">
       <span
-        className="w-1.5 h-1.5 rounded-full bg-dome-accent-cyan flex-shrink-0"
+        className="w-1.5 h-1.5 rounded-full bg-dome-accent flex-shrink-0"
         aria-hidden="true"
       />
       <p
-        className="font-mono text-[11px] uppercase tracking-dome text-dome-accent-cyan transition-opacity duration-300"
+        className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-accent transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}
         aria-live="polite"
         aria-atomic="true"

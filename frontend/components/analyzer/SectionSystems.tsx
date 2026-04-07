@@ -7,19 +7,19 @@ function SystemCard({ system }: { system: SystemNode }) {
   return (
     <div className="bg-dome-bg-tertiary rounded-dome p-4 border border-dome-border">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <span className="font-display text-sm font-semibold text-dome-text-primary">
+        <span className="font-sans text-sm font-semibold text-dome-text-primary">
           {system.name}
         </span>
         {system.is_shadow_it && (
           <Badge variant="major">Shadow IT</Badge>
         )}
       </div>
-      <p className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted">
+      <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
         {system.system_type}
         {system.vendor && ` · ${system.vendor}`}
       </p>
       {system.integration_notes && (
-        <p className="font-body text-xs text-dome-text-muted mt-2">
+        <p className="font-sans text-xs text-dome-text-muted mt-2">
           {system.integration_notes}
         </p>
       )}
@@ -40,7 +40,7 @@ function IntegrationRow({ integration }: { integration: SystemIntegration }) {
     integration.integration_type === "email";
 
   return (
-    <div className="flex items-center gap-2 text-xs font-body text-dome-text-muted py-2 border-b border-dome-border last:border-0">
+    <div className="flex items-center gap-2 text-xs font-sans text-dome-text-muted py-2 border-b border-dome-border last:border-0">
       <span className="text-dome-text-secondary font-medium">{integration.from_system}</span>
       <span aria-hidden>→</span>
       <span className="text-dome-text-secondary font-medium">{integration.to_system}</span>
@@ -63,7 +63,7 @@ export function SectionSystems({ systems, integrations, className }: Props) {
   return (
     <Card className={className}>
       <SectionLabel>Systems map</SectionLabel>
-      <h3 className="font-display text-lg font-semibold text-dome-text-primary mb-5">
+      <h3 className="font-sans text-lg font-semibold text-dome-text-primary mb-5">
         {systems.length} system{systems.length !== 1 ? "s" : ""} identified
       </h3>
 
@@ -75,7 +75,7 @@ export function SectionSystems({ systems, integrations, className }: Props) {
 
       {integrations.length > 0 && (
         <>
-          <p className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted mb-3">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted mb-3">
             Integrations
           </p>
           <div>

@@ -35,14 +35,14 @@ export function AuthModal({ onClose }: AuthModalProps) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-dome-text-primary/20 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-dome-bg-secondary border border-dome-border rounded-dome p-8 w-full max-w-md mx-4 shadow-sm">
+      <div className="bg-dome-bg-secondary border border-dome-border rounded-dome-card p-8 w-full max-w-md mx-4 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
         {!sent ? (
           <>
             <SectionLabel>Sign in</SectionLabel>
-            <h2 className="font-display text-xl font-semibold text-dome-text-primary mb-2">
+            <h2 className="font-sans text-xl font-semibold text-dome-text-primary mb-2">
               Access your analyses
             </h2>
-            <p className="font-body text-sm text-dome-text-muted mb-6">
+            <p className="font-sans text-sm text-dome-text-muted mb-6">
               Enter your email and we&apos;ll send a sign-in link. No password required.
             </p>
 
@@ -50,7 +50,7 @@ export function AuthModal({ onClose }: AuthModalProps) {
               <div>
                 <label
                   htmlFor="email"
-                  className="block font-body text-[11px] font-semibold uppercase tracking-[0.06em] text-dome-text-muted mb-2"
+                  className="block font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-secondary mb-2"
                 >
                   Email address
                 </label>
@@ -61,12 +61,12 @@ export function AuthModal({ onClose }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className="w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-3 font-body text-sm text-dome-text-primary placeholder:text-dome-text-muted focus:border-dome-accent-cyan focus:outline-none focus:ring-1 focus:ring-dome-accent-cyan/20 transition-colors"
+                  className="w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-3 font-sans text-sm text-dome-text-primary placeholder:text-dome-text-muted focus:border-dome-accent focus:outline-none focus:ring-2 focus:ring-dome-accent/20 transition-colors"
                 />
               </div>
 
               {error && (
-                <p className="font-body text-sm text-dome-status-critical">{error}</p>
+                <p className="font-sans text-sm text-dome-status-critical">{error}</p>
               )}
 
               <div className="flex gap-3 pt-2">
@@ -82,10 +82,10 @@ export function AuthModal({ onClose }: AuthModalProps) {
         ) : (
           <div className="text-center py-4">
             <SectionLabel>Link sent</SectionLabel>
-            <h2 className="font-display text-xl font-semibold text-dome-text-primary mb-2">
+            <h2 className="font-sans text-xl font-semibold text-dome-text-primary mb-2">
               Check your email
             </h2>
-            <p className="font-body text-sm text-dome-text-muted mb-6">
+            <p className="font-sans text-sm text-dome-text-muted mb-6">
               A sign-in link has been sent to <strong>{email}</strong>. It expires in 60 minutes.
             </p>
             <Button variant="secondary" onClick={onClose} className="w-full">

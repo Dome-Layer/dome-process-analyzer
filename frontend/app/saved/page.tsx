@@ -46,29 +46,29 @@ function AnalysisRow({
     <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border-b border-dome-border last:border-0">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-display text-sm font-semibold text-dome-text-primary truncate">
+          <span className="font-sans text-sm font-semibold text-dome-text-primary truncate">
             {summary.label || summary.process_name}
           </span>
           {summary.label && (
-            <span className="font-body text-xs text-dome-text-muted truncate">
+            <span className="font-sans text-xs text-dome-text-muted truncate">
               — {summary.process_name}
             </span>
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <span className="font-mono text-[11px] text-dome-text-muted">{summary.process_domain}</span>
-          <span className="font-mono text-[11px] text-dome-text-muted">·</span>
-          <span className="font-mono text-[11px] text-dome-text-muted">{summary.total_steps} steps</span>
+          <span className="font-sans text-[11px] text-dome-text-muted">{summary.process_domain}</span>
+          <span className="font-sans text-[11px] text-dome-text-muted">·</span>
+          <span className="font-sans text-[11px] text-dome-text-muted">{summary.total_steps} steps</span>
           {summary.governance_flags_critical > 0 && (
             <>
-              <span className="font-mono text-[11px] text-dome-text-muted">·</span>
-              <span className="font-mono text-[11px] text-dome-status-critical">
+              <span className="font-sans text-[11px] text-dome-text-muted">·</span>
+              <span className="font-sans text-[11px] text-dome-status-critical">
                 {summary.governance_flags_critical} critical
               </span>
             </>
           )}
-          <span className="font-mono text-[11px] text-dome-text-muted">·</span>
-          <span className="font-mono text-[11px] text-dome-text-muted">{savedAt}</span>
+          <span className="font-sans text-[11px] text-dome-text-muted">·</span>
+          <span className="font-sans text-[11px] text-dome-text-muted">{savedAt}</span>
         </div>
       </div>
 
@@ -119,7 +119,6 @@ export default function SavedPage() {
       })
       .catch((err) => {
         const msg = err instanceof Error ? err.message : "Failed to load analyses.";
-        // Detect Supabase paused
         if (err.status === 503 || msg.toLowerCase().includes("503")) {
           setError("The database is currently paused. Saved analyses are unavailable.");
         } else {
@@ -134,19 +133,19 @@ export default function SavedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-dome-bg-primary">
+    <div className="flex-1 bg-dome-bg-primary">
       <Header />
       <main className="max-w-[1152px] mx-auto px-6 md:px-8 py-12 md:py-16">
         <div className="mb-8">
           <SectionLabel>Library</SectionLabel>
-          <h1 className="font-display text-3xl font-semibold text-dome-text-primary tracking-dome-tight mb-2">
+          <h1 className="font-sans text-3xl font-bold text-dome-text-primary tracking-dome-tight mb-2">
             Saved analyses
           </h1>
         </div>
 
         {!isAuthenticated && (
           <Card>
-            <p className="font-body text-sm text-dome-text-muted mb-4">
+            <p className="font-sans text-sm text-dome-text-muted mb-4">
               Sign in to view and manage your saved analyses.
             </p>
             <Link href="/">
@@ -157,8 +156,8 @@ export default function SavedPage() {
 
         {isAuthenticated && loading && (
           <div className="flex items-center gap-2 py-12">
-            <span className="w-4 h-4 border-2 border-dome-accent-cyan border-t-transparent rounded-full animate-spin" />
-            <span className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted">
+            <span className="w-4 h-4 border-2 border-dome-accent border-t-transparent rounded-full animate-spin" />
+            <span className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
               Loading
             </span>
           </div>
@@ -166,10 +165,10 @@ export default function SavedPage() {
 
         {isAuthenticated && error && (
           <div className="bg-dome-status-critical/5 border border-dome-status-critical/20 rounded-dome p-4">
-            <p className="font-mono text-[11px] uppercase tracking-dome text-dome-status-critical mb-1">
+            <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-critical mb-1">
               Error
             </p>
-            <p className="font-body text-sm text-dome-text-secondary">{error}</p>
+            <p className="font-sans text-sm text-dome-text-secondary">{error}</p>
           </div>
         )}
 
@@ -177,7 +176,7 @@ export default function SavedPage() {
           <>
             {analyses.length === 0 ? (
               <Card>
-                <p className="font-body text-sm text-dome-text-muted mb-4">
+                <p className="font-sans text-sm text-dome-text-muted mb-4">
                   No analyses saved yet. Run an analysis and click &ldquo;Save analysis&rdquo; to store it here.
                 </p>
                 <Link href="/">
@@ -187,7 +186,7 @@ export default function SavedPage() {
             ) : (
               <Card className="p-0">
                 <div className="px-6 py-4 border-b border-dome-border">
-                  <p className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted">
+                  <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
                     {analyses.length} saved
                   </p>
                 </div>

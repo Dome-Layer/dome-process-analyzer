@@ -18,7 +18,7 @@ Both servers must be running at the same time. You need **two terminal windows**
 ### Terminal 1 — Backend
 
 ```bash
-cd ~/Documents/Business/Dome/Dome\ Process\ Analyzer/dome-process-analyzer\:backend/backend
+cd ~/Documents/Business/Dome/Dome\ Process\ Analyzer/dome-process-analyzer/backend
 source venv/bin/activate
 python3 -m uvicorn app.main:app --reload --port 8000
 ```
@@ -32,7 +32,7 @@ INFO:     Started reloader process
 ### Terminal 2 — Frontend
 
 ```bash
-cd ~/Documents/Business/Dome/Dome\ Process\ Analyzer/dome-process-analyzer\:backend/frontend
+cd ~/Documents/Business/Dome/Dome\ Process\ Analyzer/dome-process-analyzer/frontend
 ./node_modules/.bin/next dev
 ```
 
@@ -76,11 +76,11 @@ The frontend calls the backend directly (bypassing the Next.js proxy) because th
 
 1. Open **http://localhost:3000**
 2. Paste a business process description (minimum 50 characters)
-3. Optionally add a process name and domain hint (click "Show options")
-4. Click **Analyse** and wait ~40 seconds
+3. Optionally add a process name and domain hint (click **+ Optional fields**)
+4. Click **Analyse process** and wait ~40 seconds
 5. Review: metrics, steps, systems map, governance flags, automation opportunities, flowchart
-6. If clarifying questions appear, answer them and click **Refine** for an updated analysis
-7. To save: click **Save Analysis** (requires sign-in via magic link email)
+6. If clarifying questions appear, answer them and click **Refine analysis** for an updated analysis
+7. To save: click **Save analysis** (requires sign-in via magic link email)
 8. Saved analyses appear under **Saved** in the top navigation
 
 ---

@@ -1,25 +1,19 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Outfit, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { Footer } from "@/components/layout/Footer";
 
-const spaceGrotesk = Space_Grotesk({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const outfit = Outfit({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-body",
+  variable: "--font-sans",
   display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -37,10 +31,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body>
-        <AuthProvider>{children}</AuthProvider>
+      <body className="flex flex-col min-h-screen">
+        <AuthProvider>
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

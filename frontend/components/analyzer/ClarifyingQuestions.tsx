@@ -42,10 +42,10 @@ export function ClarifyingQuestions({ questions, onRefine, refining, className }
   return (
     <Card className={className}>
       <SectionLabel>Clarifying questions</SectionLabel>
-      <h3 className="font-display text-lg font-semibold text-dome-text-primary mb-2">
+      <h3 className="font-sans text-lg font-semibold text-dome-text-primary mb-2">
         Refine the analysis
       </h3>
-      <p className="font-body text-sm text-dome-text-muted mb-5">
+      <p className="font-sans text-sm text-dome-text-muted mb-5">
         Answer any of these questions to improve accuracy. You don&apos;t need to answer all of them.
       </p>
 
@@ -59,11 +59,11 @@ export function ClarifyingQuestions({ questions, onRefine, refining, className }
             </div>
             <label
               htmlFor={q.id}
-              className="block font-body text-sm font-medium text-dome-text-primary mb-1"
+              className="block font-sans text-sm font-medium text-dome-text-primary mb-1"
             >
               {q.question}
             </label>
-            <p className="font-body text-xs text-dome-text-muted mb-2">{q.context}</p>
+            <p className="font-sans text-xs text-dome-text-muted mb-2">{q.context}</p>
             <textarea
               id={q.id}
               value={answers[q.id]}
@@ -73,7 +73,7 @@ export function ClarifyingQuestions({ questions, onRefine, refining, className }
               rows={2}
               maxLength={2000}
               placeholder="Your answer…"
-              className="w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-2.5 font-body text-sm text-dome-text-primary placeholder:text-dome-text-muted resize-y focus:border-dome-accent-cyan focus:outline-none transition-colors"
+              className="w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-2.5 font-sans text-sm text-dome-text-primary placeholder:text-dome-text-muted resize-y focus:border-dome-accent focus:outline-none focus:ring-2 focus:ring-dome-accent/15 transition-colors"
             />
           </div>
         ))}

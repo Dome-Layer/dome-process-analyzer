@@ -18,11 +18,11 @@ const complexityVariant: Record<string, "high" | "medium" | "low"> = {
 
 const automationTypeLabel: Record<string, string> = {
   rpa: "RPA",
-  ai_extraction: "AI Extraction",
-  api_integration: "API Integration",
-  workflow_engine: "Workflow Engine",
-  llm_agent: "LLM Agent",
-  rule_engine: "Rule Engine",
+  ai_extraction: "AI extraction",
+  api_integration: "API integration",
+  workflow_engine: "Workflow engine",
+  llm_agent: "LLM agent",
+  rule_engine: "Rule engine",
 };
 
 function OpportunityCard({ opp }: { opp: AutomationOpportunity }) {
@@ -42,14 +42,14 @@ function OpportunityCard({ opp }: { opp: AutomationOpportunity }) {
         </Badge>
       </div>
 
-      <h4 className="font-display text-sm font-semibold text-dome-text-primary mb-1.5">
+      <h4 className="font-sans text-sm font-semibold text-dome-text-primary mb-1.5">
         {opp.title}
       </h4>
 
-      <p className="font-body text-sm text-dome-text-muted mb-3">{opp.description}</p>
+      <p className="font-sans text-sm text-dome-text-muted mb-3">{opp.description}</p>
 
       {opp.estimated_time_saving_minutes_per_instance !== null && (
-        <p className="font-mono text-[11px] uppercase tracking-dome text-dome-accent-cyan mb-3">
+        <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-accent mb-3">
           Est. saving:{" "}
           {opp.estimated_time_saving_minutes_per_instance < 60
             ? `${opp.estimated_time_saving_minutes_per_instance}m`
@@ -60,13 +60,13 @@ function OpportunityCard({ opp }: { opp: AutomationOpportunity }) {
 
       {opp.prerequisites.length > 0 && (
         <div className="bg-dome-bg-tertiary rounded-dome p-3">
-          <p className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted mb-1.5">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted mb-1.5">
             Prerequisites
           </p>
           <ul className="flex flex-col gap-1">
             {opp.prerequisites.map((p, i) => (
-              <li key={i} className="font-body text-xs text-dome-text-muted flex gap-1.5">
-                <span className="text-dome-accent-cyan">·</span>
+              <li key={i} className="font-sans text-xs text-dome-text-muted flex gap-1.5">
+                <span className="text-dome-accent">·</span>
                 {p}
               </li>
             ))}
@@ -89,7 +89,7 @@ export function SectionAutomation({ opportunities, className }: Props) {
     <Card className={className}>
       <SectionLabel>Automation opportunities</SectionLabel>
       <div className="flex items-center justify-between mb-5">
-        <h3 className="font-display text-lg font-semibold text-dome-text-primary">
+        <h3 className="font-sans text-lg font-semibold text-dome-text-primary">
           {opportunities.length} opportunit{opportunities.length !== 1 ? "ies" : "y"} identified
         </h3>
         {high > 0 && (
@@ -98,7 +98,7 @@ export function SectionAutomation({ opportunities, className }: Props) {
       </div>
 
       {opportunities.length === 0 ? (
-        <p className="font-body text-sm text-dome-text-muted">
+        <p className="font-sans text-sm text-dome-text-muted">
           No automation opportunities identified.
         </p>
       ) : (

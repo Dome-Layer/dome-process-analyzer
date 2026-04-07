@@ -22,7 +22,7 @@ export function Header() {
           <nav className="flex items-center gap-6">
             <Link
               href="/saved"
-              className="font-mono text-[13px] font-medium uppercase tracking-dome text-dome-text-secondary hover:text-dome-accent-cyan transition-colors duration-200"
+              className="font-sans text-sm font-medium text-dome-text-secondary hover:text-dome-accent transition-colors duration-150"
             >
               Saved
             </Link>

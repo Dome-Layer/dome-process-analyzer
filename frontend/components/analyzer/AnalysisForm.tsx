@@ -32,13 +32,16 @@ export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
   const charCount = description.trim().length;
   const tooShort = charCount > 0 && charCount < 50;
 
+  const inputBase =
+    "w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-3 font-sans text-sm text-dome-text-primary placeholder:text-dome-text-muted focus:border-dome-accent focus:outline-none focus:ring-2 focus:ring-dome-accent/15 transition-colors";
+
+  const labelBase =
+    "block font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-secondary mb-2";
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div>
-        <label
-          htmlFor="description"
-          className="block font-body text-[11px] font-semibold uppercase tracking-[0.06em] text-dome-text-muted mb-2"
-        >
+        <label htmlFor="description" className={labelBase}>
           Process description
         </label>
         <textarea
@@ -47,17 +50,17 @@ export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
           onChange={(e) => setDescription(e.target.value)}
           placeholder={PLACEHOLDER}
           rows={10}
-          className="w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-3 font-body text-sm text-dome-text-primary placeholder:text-dome-text-muted leading-relaxed resize-y focus:border-dome-accent-cyan focus:outline-none focus:ring-1 focus:ring-dome-accent-cyan/20 transition-colors"
+          className={`${inputBase} leading-relaxed resize-y`}
         />
         <div className="flex justify-between mt-1.5">
           {tooShort ? (
-            <p className="font-mono text-[11px] text-dome-status-critical">
+            <p className="font-sans text-[11px] text-dome-status-critical">
               Minimum 50 characters ({50 - charCount} more needed)
             </p>
           ) : (
             <span />
           )}
-          <p className="font-mono text-[11px] text-dome-text-muted">
+          <p className="font-sans text-[11px] text-dome-text-muted">
             {charCount.toLocaleString()} / 10,000
           </p>
         </div>
@@ -66,18 +69,15 @@ export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
       <button
         type="button"
         onClick={() => setShowAdvanced((v) => !v)}
-        className="font-mono text-[11px] uppercase tracking-dome text-dome-accent-cyan text-left hover:text-dome-accent-lightblue transition-colors"
+        className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-accent text-left hover:text-dome-accent-hover transition-colors"
       >
-        {showAdvanced ? "— Hide options" : "+ Optional fields"}
+        {showAdvanced ? "− Hide options" : "+ Optional fields"}
       </button>
 
       {showAdvanced && (
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label
-              htmlFor="processName"
-              className="block font-body text-[11px] font-semibold uppercase tracking-[0.06em] text-dome-text-muted mb-2"
-            >
+            <label htmlFor="processName" className={labelBase}>
               Process name
             </label>
             <input
@@ -87,14 +87,11 @@ export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
               onChange={(e) => setProcessName(e.target.value)}
               placeholder="e.g. Supplier Invoice Approval"
               maxLength={120}
-              className="w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-3 font-body text-sm text-dome-text-primary placeholder:text-dome-text-muted focus:border-dome-accent-cyan focus:outline-none transition-colors"
+              className={inputBase}
             />
           </div>
           <div>
-            <label
-              htmlFor="domainHint"
-              className="block font-body text-[11px] font-semibold uppercase tracking-[0.06em] text-dome-text-muted mb-2"
-            >
+            <label htmlFor="domainHint" className={labelBase}>
               Domain hint
             </label>
             <input
@@ -103,14 +100,14 @@ export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
               value={domainHint}
               onChange={(e) => setDomainHint(e.target.value)}
               placeholder="e.g. Procure-to-Pay, Commodity Finance"
-              className="w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-3 font-body text-sm text-dome-text-primary placeholder:text-dome-text-muted focus:border-dome-accent-cyan focus:outline-none transition-colors"
+              className={inputBase}
             />
           </div>
         </div>
       )}
 
       <div className="flex items-center justify-between pt-2">
-        <p className="font-body text-xs text-dome-text-muted max-w-sm">
+        <p className="font-sans text-xs text-dome-text-muted max-w-sm">
           The process description is analysed and then discarded. It is never stored without your explicit consent.
         </p>
         <Button

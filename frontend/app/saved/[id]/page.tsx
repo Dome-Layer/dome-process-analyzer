@@ -43,12 +43,12 @@ export default function SavedAnalysisPage() {
   }, [id, isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen bg-dome-bg-primary">
+    <div className="flex-1 bg-dome-bg-primary">
       <Header />
       <main className="max-w-[1152px] mx-auto px-6 md:px-8 py-12 md:py-16">
         <div className="mb-8">
           <Link href="/saved">
-            <Button variant="ghost" className="mb-4 -ml-2 text-dome-text-muted">
+            <Button variant="ghost" className="mb-4 -ml-2">
               ← Saved analyses
             </Button>
           </Link>
@@ -56,10 +56,10 @@ export default function SavedAnalysisPage() {
           {analysis && (
             <>
               <SectionLabel>Saved analysis</SectionLabel>
-              <h1 className="font-display text-3xl font-semibold text-dome-text-primary tracking-dome-tight mb-1">
+              <h1 className="font-sans text-3xl font-bold text-dome-text-primary tracking-dome-tight mb-1">
                 {analysis.process_name}
               </h1>
-              <p className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted">
+              <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
                 {analysis.process_domain}
                 {analysis.analysis_version > 1 && ` · Version ${analysis.analysis_version}`}
               </p>
@@ -69,8 +69,8 @@ export default function SavedAnalysisPage() {
 
         {loading && (
           <div className="flex items-center gap-2 py-12">
-            <span className="w-4 h-4 border-2 border-dome-accent-cyan border-t-transparent rounded-full animate-spin" />
-            <span className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted">
+            <span className="w-4 h-4 border-2 border-dome-accent border-t-transparent rounded-full animate-spin" />
+            <span className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
               Loading
             </span>
           </div>
@@ -78,10 +78,10 @@ export default function SavedAnalysisPage() {
 
         {error && (
           <div className="bg-dome-status-critical/5 border border-dome-status-critical/20 rounded-dome p-4">
-            <p className="font-mono text-[11px] uppercase tracking-dome text-dome-status-critical mb-1">
+            <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-critical mb-1">
               Error
             </p>
-            <p className="font-body text-sm text-dome-text-secondary">{error}</p>
+            <p className="font-sans text-sm text-dome-text-secondary">{error}</p>
           </div>
         )}
 

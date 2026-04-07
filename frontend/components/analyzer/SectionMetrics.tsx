@@ -6,10 +6,10 @@ import type { ProcessAnalysis } from "@/lib/types";
 function MetricTile({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="bg-dome-bg-tertiary rounded-dome p-4">
-      <p className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted mb-1.5">
+      <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted mb-1.5">
         {label}
       </p>
-      <p className="font-display text-xl font-semibold text-dome-text-primary">{value}</p>
+      <p className="font-sans text-xl font-bold text-dome-text-primary">{value}</p>
     </div>
   );
 }
@@ -38,10 +38,10 @@ export function SectionMetrics({ analysis, className }: Props) {
 
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
-          <h2 className="font-display text-2xl font-semibold text-dome-text-primary leading-tight">
+          <h2 className="font-sans text-2xl font-bold text-dome-text-primary leading-tight">
             {process_name}
           </h2>
-          <p className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted mt-1">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted mt-1">
             {process_domain}
           </p>
         </div>
@@ -50,7 +50,7 @@ export function SectionMetrics({ analysis, className }: Props) {
         </Badge>
       </div>
 
-      <p className="font-body text-sm text-dome-text-secondary leading-relaxed mb-6">
+      <p className="font-sans text-sm text-dome-text-secondary leading-relaxed mb-6">
         {description_summary}
       </p>
 
@@ -93,7 +93,7 @@ export function SectionMetrics({ analysis, className }: Props) {
       {metrics.shadow_it_detected && (
         <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-dome-status-major/5 border border-dome-status-major/20 rounded-dome">
           <span className="w-1.5 h-1.5 rounded-full bg-dome-status-major flex-shrink-0" />
-          <p className="font-mono text-[11px] uppercase tracking-dome text-dome-status-major">
+          <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-major">
             Shadow IT detected
           </p>
         </div>

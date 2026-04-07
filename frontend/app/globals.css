@@ -1,18 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-display: "Space Grotesk", "Helvetica Neue", sans-serif;
-  --font-body: Outfit, "Helvetica Neue", sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
 html,
 body {
-  background-color: #fafaf9;
-  color: #0c0c0e;
-  font-family: var(--font-body);
+  background-color: #FAFAFA;
+  color: #0A0A0A;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -21,9 +22,9 @@ body {
 .skeleton {
   background: linear-gradient(
     90deg,
-    #e2e2e0 25%,
-    #ededeb 50%,
-    #e2e2e0 75%
+    #E8E8E8 25%,
+    #F5F5F5 50%,
+    #E8E8E8 75%
   );
   background-size: 400px 100%;
   animation: shimmer 1.4s linear infinite;
@@ -44,13 +45,13 @@ body {
 
 /* Mermaid diagram overrides */
 .mermaid-container .nodeLabel {
-  font-family: var(--font-body) !important;
+  font-family: var(--font-sans) !important;
   font-size: 13px !important;
 }
 
-/* Focus ring */
+/* Focus ring — WCAG 2.1 AA */
 *:focus-visible {
-  outline: 2px solid #5b9cb5;
+  outline: 2px solid rgba(0, 128, 255, 0.5);
   outline-offset: 2px;
 }
 

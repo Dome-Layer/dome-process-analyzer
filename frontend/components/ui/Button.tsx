@@ -16,15 +16,15 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 font-mono text-sm font-medium uppercase tracking-dome transition-all duration-200 rounded-dome disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 font-sans text-sm font-semibold leading-none transition-all duration-150 rounded-dome disabled:opacity-40 disabled:cursor-not-allowed";
 
   const variants = {
     primary:
-      "bg-dome-text-primary text-dome-bg-primary px-8 py-3.5 hover:bg-dome-text-secondary",
+      "bg-dome-accent text-white px-6 py-3 hover:bg-dome-accent-hover active:bg-dome-accent-active focus-visible:shadow-[0_0_0_3px_rgba(0,128,255,0.25)]",
     secondary:
-      "bg-transparent text-dome-text-primary border border-dome-text-primary px-8 py-3.5 hover:border-dome-accent-cyan hover:text-dome-accent-cyan",
+      "bg-transparent text-dome-accent border border-dome-border-accent px-6 py-3 hover:bg-dome-accent-subtle active:bg-dome-bg-accent",
     ghost:
-      "bg-transparent text-dome-accent-cyan px-4 py-3 underline underline-offset-4 hover:text-dome-accent-lightblue",
+      "bg-transparent text-dome-accent px-3 py-2 hover:text-dome-accent-hover underline underline-offset-4",
   };
 
   return (

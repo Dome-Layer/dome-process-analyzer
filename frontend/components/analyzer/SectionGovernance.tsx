@@ -7,7 +7,7 @@ import { clsx } from "@/lib/clsx";
 const severityBorderClass: Record<GovernanceSeverity, string> = {
   critical: "border-l-dome-status-critical",
   major: "border-l-dome-status-major",
-  minor: "border-l-dome-accent-cyan",
+  minor: "border-l-dome-accent",
 };
 
 function FlagCard({ flag }: { flag: GovernanceFlag }) {
@@ -23,25 +23,25 @@ function FlagCard({ flag }: { flag: GovernanceFlag }) {
         <Badge variant="default">{flag.category.replace(/_/g, " ")}</Badge>
       </div>
 
-      <h4 className="font-display text-sm font-semibold text-dome-text-primary mb-1.5">
+      <h4 className="font-sans text-sm font-semibold text-dome-text-primary mb-1.5">
         {flag.title}
       </h4>
 
-      <p className="font-body text-sm text-dome-text-muted mb-3">
+      <p className="font-sans text-sm text-dome-text-muted mb-3">
         {flag.description}
       </p>
 
       <div className="bg-dome-bg-tertiary rounded-dome p-3">
-        <p className="font-mono text-[11px] uppercase tracking-dome text-dome-text-muted mb-1">
+        <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted mb-1">
           Recommendation
         </p>
-        <p className="font-body text-sm text-dome-text-secondary">
+        <p className="font-sans text-sm text-dome-text-secondary">
           {flag.recommendation}
         </p>
       </div>
 
       {flag.regulatory_reference && (
-        <p className="font-mono text-[11px] text-dome-text-muted mt-2">
+        <p className="font-sans text-[11px] text-dome-text-muted mt-2">
           Ref: {flag.regulatory_reference}
         </p>
       )}
@@ -67,7 +67,7 @@ export function SectionGovernance({ flags, className }: Props) {
     <Card className={className}>
       <SectionLabel>Governance flags</SectionLabel>
       <div className="flex items-center justify-between mb-5">
-        <h3 className="font-display text-lg font-semibold text-dome-text-primary">
+        <h3 className="font-sans text-lg font-semibold text-dome-text-primary">
           {flags.length} flag{flags.length !== 1 ? "s" : ""} raised
         </h3>
         <div className="flex gap-2">
@@ -81,7 +81,7 @@ export function SectionGovernance({ flags, className }: Props) {
       </div>
 
       {flags.length === 0 ? (
-        <p className="font-body text-sm text-dome-text-muted">
+        <p className="font-sans text-sm text-dome-text-muted">
           No governance issues identified.
         </p>
       ) : (
