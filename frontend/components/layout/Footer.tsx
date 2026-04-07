@@ -12,7 +12,7 @@ export function Footer() {
           >
             Dome
           </a>
-          {" "}Governance-Driven Operational AI.
+          {" "}— Governance-Driven Operational AI.
         </p>
         <a
           href="https://www.domelayer.com"
