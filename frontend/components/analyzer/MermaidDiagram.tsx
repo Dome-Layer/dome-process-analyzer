@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import DOMPurify from "dompurify";
 import { Card } from "@/components/ui/Card";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
@@ -40,7 +41,10 @@ export function MermaidDiagram({ chart, className }: Props) {
         const { svg } = await mermaid.render(id, chart);
 
         if (!cancelled && containerRef.current) {
-          containerRef.current.innerHTML = svg;
+          const cleanSvg = DOMPurify.sanitize(svg, {
+            USE_PROFILES: { svg: true, svgFilters: true },
+          });
+          containerRef.current.innerHTML = cleanSvg;
           setRendered(true);
         }
       } catch (err) {

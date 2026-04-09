@@ -41,7 +41,12 @@ export default function AuthCallbackPage() {
     }
 
     if (accessToken && tokenType === "bearer") {
-      signIn(accessToken);
+      // expires_at is a Unix timestamp (seconds); convert to ISO string for storage.
+      const expiresAtRaw = params.get("expires_at");
+      const expiresAt = expiresAtRaw
+        ? new Date(parseInt(expiresAtRaw, 10) * 1000).toISOString()
+        : undefined;
+      signIn(accessToken, expiresAt);
       router.replace("/");
       return;
     }

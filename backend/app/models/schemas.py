@@ -218,7 +218,10 @@ class AnalysisListResponse(BaseModel):
 
 
 class MagicLinkRequest(BaseModel):
-    email: str = Field(pattern=r"^[^@]+@[^@]+\.[^@]+$")
+    email: str = Field(
+        pattern=r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$",
+        max_length=254,
+    )
 
 
 class MagicLinkResponse(BaseModel):

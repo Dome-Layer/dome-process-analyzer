@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, model_validator
 from typing import Literal
 
 
@@ -36,6 +36,24 @@ class Settings(BaseSettings):
         "env_file_encoding": "utf-8",
         "case_sensitive": False,
     }
+
+    @model_validator(mode="after")
+    def validate_required_secrets(self) -> "Settings":
+        if self.environment == "production":
+            missing = [
+                name
+                for name, val in [
+                    ("ANTHROPIC_API_KEY", self.anthropic_api_key),
+                    ("SUPABASE_SERVICE_ROLE_KEY", self.supabase_service_role_key),
+                    ("SUPABASE_URL", self.supabase_url),
+                ]
+                if not val
+            ]
+            if missing:
+                raise ValueError(
+                    f"Missing required production environment variables: {', '.join(missing)}"
+                )
+        return self
 
 
 settings = Settings()

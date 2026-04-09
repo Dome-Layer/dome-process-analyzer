@@ -12,29 +12,27 @@ import { getToken, setToken, clearToken } from "@/lib/auth";
 import { deleteSession } from "@/lib/api";
 
 interface AuthState {
-  token: string | null;
   isAuthenticated: boolean;
-  signIn: (token: string) => void;
+  signIn: (token: string, expiresAt?: string) => void;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState>({
-  token: null,
   isAuthenticated: false,
   signIn: () => {},
   signOut: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    setTokenState(getToken());
+    setIsAuthenticated(!!getToken());
   }, []);
 
-  const signIn = useCallback((newToken: string) => {
-    setToken(newToken);
-    setTokenState(newToken);
+  const signIn = useCallback((newToken: string, expiresAt?: string) => {
+    setToken(newToken, expiresAt);
+    setIsAuthenticated(true);
   }, []);
 
   const signOut = useCallback(async () => {
@@ -44,13 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // best-effort
     }
     clearToken();
-    setTokenState(null);
+    setIsAuthenticated(false);
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ token, isAuthenticated: !!token, signIn, signOut }}
-    >
+    <AuthContext.Provider value={{ isAuthenticated, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

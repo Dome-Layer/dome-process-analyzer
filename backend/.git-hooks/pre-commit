@@ -1,0 +1,7 @@
+#!/bin/sh
+# Prevent committing .env files that may contain secrets.
+if git diff --cached --name-only | grep -qE '(^|/)\.env$'; then
+  echo "ERROR: Attempted to commit a .env file. Remove it from staging first."
+  echo "  git reset HEAD backend/.env"
+  exit 1
+fi
