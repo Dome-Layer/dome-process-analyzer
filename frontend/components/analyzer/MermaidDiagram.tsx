@@ -43,6 +43,10 @@ export function MermaidDiagram({ chart, className }: Props) {
         if (!cancelled && containerRef.current) {
           const cleanSvg = DOMPurify.sanitize(svg, {
             USE_PROFILES: { svg: true, svgFilters: true },
+            // Mermaid renders node labels via <foreignObject><div><p>text</p></div></foreignObject>.
+            // The SVG profile strips HTML elements, so we explicitly allow them here.
+            ADD_TAGS: ["foreignObject", "div", "span", "p", "br", "style"],
+            ADD_ATTR: ["dominant-baseline", "text-anchor", "requiredExtensions"],
           });
           containerRef.current.innerHTML = cleanSvg;
           setRendered(true);
