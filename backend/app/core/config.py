@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     supabase_anon_key: str = ""
     supabase_service_role_key: str = ""
 
+    # Redis (optional — used for cross-instance rate limiting)
+    redis_url: str = ""
+
     # App
     environment: Literal["development", "production"] = "development"
     allowed_origins: str = "http://localhost:3000"
