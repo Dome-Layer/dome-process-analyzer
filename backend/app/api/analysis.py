@@ -15,7 +15,6 @@ def _parse_dt(value: str) -> datetime:
     return datetime.fromisoformat(value)
 
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
-from app.core.limiter import limiter
 
 from app.api.auth import get_current_user
 from app.core.cache import analysis_cache
@@ -47,7 +46,6 @@ router = APIRouter(prefix="/api/v1/analysis", tags=["analysis"])
     status_code=201,
     responses={422: {"model": ErrorResponse}, 503: {"model": ErrorResponse}},
 )
-@limiter.limit("10/minute;50/hour")
 async def create_analysis(request: Request, body: AnalysisRequest):
     """Submit a process description for analysis. No auth required."""
     service = AnalysisService()
@@ -59,7 +57,6 @@ async def create_analysis(request: Request, body: AnalysisRequest):
     response_model=RefineResponse,
     responses={404: {"model": ErrorResponse}, 422: {"model": ErrorResponse}},
 )
-@limiter.limit("20/minute;100/hour")
 async def refine_analysis(
     request: Request,
     analysis_id: str,
