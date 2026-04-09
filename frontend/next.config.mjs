@@ -17,16 +17,17 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              // Mermaid uses new Function() internally — unsafe-eval is required.
-              "script-src 'self' 'unsafe-eval'",
-              // Tailwind injects inline styles.
-              "style-src 'self' 'unsafe-inline'",
+              // Next.js App Router requires unsafe-inline for hydration scripts;
+              // Mermaid requires unsafe-eval for new Function().
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              // Tailwind inlines styles; Google Fonts serves a CSS file from googleapis.com.
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // Mermaid renders SVG via data URIs; Next.js image optimisation uses blob:.
               "img-src 'self' data: blob:",
               // Allow XHR/fetch to the Railway backend.
               `connect-src 'self'${apiBase ? ` ${apiBase}` : ""}`,
-              // Google Fonts loaded by Next.js font optimisation.
-              "font-src 'self' https://fonts.gstatic.com",
+              // Google Fonts: CSS from googleapis.com, font files from gstatic.com.
+              "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
               // Disallow embedding in any frame.
               "frame-ancestors 'none'",
             ].join("; "),
