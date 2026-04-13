@@ -44,58 +44,44 @@ def _get_provider() -> LLMProvider:
 _PROMPT_TAG_STRIP = re.compile(r"</?process_description>", re.IGNORECASE)
 
 # Mermaid reserved words that cannot be used as node IDs or ID prefixes.
-# Using them causes parse errors in all Mermaid renderers.
-_MERMAID_RESERVED = re.compile(
-    r'\b(end|start|subgraph|graph|flowchart|direction|click|style|classDef|class)\b',
-    re.IGNORECASE,
-)
-_MERMAID_NODE_ID = re.compile(r'^(\s*)([\w-]+)(\[|\{|\(|\[\[)', re.MULTILINE)
+# Maps reserved word → safe replacement prefix.
+_MERMAID_RESERVED_REPLACEMENTS = {
+    "end": "finish",
+    "start": "begin",
+    "subgraph": "sg-node",
+    "graph": "graph-node",
+    "flowchart": "flowchart-node",
+    "direction": "direction-node",
+    "click": "click-node",
+    "style": "style-node",
+    "classDef": "classdef-node",
+    "class": "class-node",
+}
 
 
 def _sanitize_mermaid(diagram: str) -> str:
     """Replace reserved Mermaid keywords used as node IDs with safe alternatives.
 
-    Operates on the node-ID portion of each line only, leaving labels untouched.
-    Example: 'end-node[Onboarding Complete]' → 'finish-node[Onboarding Complete]'
+    Handles all positions a reserved-word node ID can appear:
+      - Node definitions:   end-node[Label]  or  end[Label]
+      - Inline edge targets: source --> end-node[Label]
+      - Bare edge references: source --> end-node
+
+    Only node IDs are rewritten; label text inside [...] is never touched.
+    Example: 'step-07 --> end-node[Onboarding Complete]'
+          →  'step-07 --> finish-node[Onboarding Complete]'
     """
-    replacements = {
-        "end": "finish",
-        "start": "begin",
-        "subgraph": "subgraph-node",
-        "graph": "graph-node",
-        "flowchart": "flowchart-node",
-        "direction": "direction-node",
-        "click": "click-node",
-        "style": "style-node",
-        "classDef": "classdef-node",
-        "class": "class-node",
-    }
-
-    def _replace_id(match: re.Match) -> str:
-        indent, node_id, shape = match.group(1), match.group(2), match.group(3)
-        # Check if any reserved word appears at the start of the node ID
-        for keyword, replacement in replacements.items():
-            pattern = re.compile(rf'^{re.escape(keyword)}(\b|-)', re.IGNORECASE)
-            if pattern.match(node_id):
-                node_id = pattern.sub(replacement + r'\1', node_id, count=1)
-                break
-        return f"{indent}{node_id}{shape}"
-
-    # Fix node definitions (lines with shapes: [...], {...}, (...), [[...]])
-    diagram = _MERMAID_NODE_ID.sub(_replace_id, diagram)
-
-    # Also fix bare references on edge lines (e.g. "--> end-node")
-    # Replace only the node-ID part after --> or --- arrows
-    def _replace_edge_target(m: re.Match) -> str:
-        full = m.group(0)
-        node_id = m.group(1)
-        for keyword, replacement in replacements.items():
-            pattern = re.compile(rf'^{re.escape(keyword)}(\b|-)', re.IGNORECASE)
-            if pattern.match(node_id):
-                return full.replace(node_id, pattern.sub(replacement + r'\1', node_id, count=1), 1)
-        return full
-
-    diagram = re.sub(r'--[>\-]+\s+([\w-]+)(?=\s*$|\s*-->|\s*---)', _replace_edge_target, diagram, flags=re.MULTILINE)
+    for keyword, replacement in _MERMAID_RESERVED_REPLACEMENTS.items():
+        # Match the reserved keyword at a word boundary, followed by either:
+        #   - a hyphen+more chars (e.g. end-node)
+        #   - a shape bracket directly (e.g. end[Label])
+        # This covers ALL positions in the line (start, middle, after -->).
+        diagram = re.sub(
+            rf'(?<!["\'\w])({re.escape(keyword)})((?:-[\w-]+)?)(?=\s*[\[{{\(]|(?:\s*$)|\s+-->|\s+---)',
+            lambda m, r=replacement: r + m.group(2),
+            diagram,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )
 
     return diagram
 

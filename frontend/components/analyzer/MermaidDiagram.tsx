@@ -40,6 +40,12 @@ export function MermaidDiagram({ chart, className }: Props) {
         const id = `mermaid-${Math.random().toString(36).slice(2)}`;
         const { svg } = await mermaid.render(id, chart);
 
+        // Mermaid v10 sometimes returns an error SVG instead of throwing.
+        // Detect this by checking for its error marker class.
+        if (svg.includes('class="error-icon"') || svg.includes('Syntax error')) {
+          throw new Error("Diagram contains a syntax error. Check node IDs for reserved keywords.");
+        }
+
         if (!cancelled && containerRef.current) {
           const cleanSvg = DOMPurify.sanitize(svg, {
             USE_PROFILES: { svg: true, svgFilters: true },
