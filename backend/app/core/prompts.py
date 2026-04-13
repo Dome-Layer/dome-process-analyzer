@@ -113,6 +113,9 @@ MERMAID FLOWCHART
 - Keep node labels concise — max 5 words.
 - The diagram must be syntactically valid Mermaid. Do not use unsupported syntax.
 - Do not use trapezoid shapes — they are unreliably supported across renderers.
+- Never use Mermaid reserved words as node IDs or ID prefixes. Reserved words include:
+  end, start, subgraph, graph, flowchart, direction, click, style, classDef, class.
+  Use descriptive IDs instead (e.g. "complete-node", "process-end", "finish-node").
 
 CLARIFYING QUESTIONS
 - If the description is ambiguous on points that materially affect analysis

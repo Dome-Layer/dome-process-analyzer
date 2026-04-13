@@ -43,6 +43,62 @@ def _get_provider() -> LLMProvider:
 
 _PROMPT_TAG_STRIP = re.compile(r"</?process_description>", re.IGNORECASE)
 
+# Mermaid reserved words that cannot be used as node IDs or ID prefixes.
+# Using them causes parse errors in all Mermaid renderers.
+_MERMAID_RESERVED = re.compile(
+    r'\b(end|start|subgraph|graph|flowchart|direction|click|style|classDef|class)\b',
+    re.IGNORECASE,
+)
+_MERMAID_NODE_ID = re.compile(r'^(\s*)([\w-]+)(\[|\{|\(|\[\[)', re.MULTILINE)
+
+
+def _sanitize_mermaid(diagram: str) -> str:
+    """Replace reserved Mermaid keywords used as node IDs with safe alternatives.
+
+    Operates on the node-ID portion of each line only, leaving labels untouched.
+    Example: 'end-node[Onboarding Complete]' → 'finish-node[Onboarding Complete]'
+    """
+    replacements = {
+        "end": "finish",
+        "start": "begin",
+        "subgraph": "subgraph-node",
+        "graph": "graph-node",
+        "flowchart": "flowchart-node",
+        "direction": "direction-node",
+        "click": "click-node",
+        "style": "style-node",
+        "classDef": "classdef-node",
+        "class": "class-node",
+    }
+
+    def _replace_id(match: re.Match) -> str:
+        indent, node_id, shape = match.group(1), match.group(2), match.group(3)
+        # Check if any reserved word appears at the start of the node ID
+        for keyword, replacement in replacements.items():
+            pattern = re.compile(rf'^{re.escape(keyword)}(\b|-)', re.IGNORECASE)
+            if pattern.match(node_id):
+                node_id = pattern.sub(replacement + r'\1', node_id, count=1)
+                break
+        return f"{indent}{node_id}{shape}"
+
+    # Fix node definitions (lines with shapes: [...], {...}, (...), [[...]])
+    diagram = _MERMAID_NODE_ID.sub(_replace_id, diagram)
+
+    # Also fix bare references on edge lines (e.g. "--> end-node")
+    # Replace only the node-ID part after --> or --- arrows
+    def _replace_edge_target(m: re.Match) -> str:
+        full = m.group(0)
+        node_id = m.group(1)
+        for keyword, replacement in replacements.items():
+            pattern = re.compile(rf'^{re.escape(keyword)}(\b|-)', re.IGNORECASE)
+            if pattern.match(node_id):
+                return full.replace(node_id, pattern.sub(replacement + r'\1', node_id, count=1), 1)
+        return full
+
+    diagram = re.sub(r'--[>\-]+\s+([\w-]+)(?=\s*$|\s*-->|\s*---)', _replace_edge_target, diagram, flags=re.MULTILINE)
+
+    return diagram
+
 
 def _sanitize_input(value: str) -> str:
     """Strip prompt delimiter tags from user-supplied strings to prevent injection."""
@@ -253,7 +309,9 @@ class AnalysisService:
         raw["created_at"] = datetime.now(timezone.utc).isoformat()
 
         try:
-            return ProcessAnalysis.model_validate(raw)
+            analysis = ProcessAnalysis.model_validate(raw)
+            analysis.mermaid_flowchart = _sanitize_mermaid(analysis.mermaid_flowchart)
+            return analysis
         except Exception as e:
             self._last_validation_error = str(e)
             logger.warning(
