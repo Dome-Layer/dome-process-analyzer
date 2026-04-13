@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Header } from "@/components/layout/Header";
 import { SectionMetrics } from "@/components/analyzer/SectionMetrics";
 import { SectionSteps } from "@/components/analyzer/SectionSteps";
 import { SectionSystems } from "@/components/analyzer/SectionSystems";
@@ -44,7 +43,6 @@ export default function SavedAnalysisPage() {
 
   return (
     <div className="flex-1 bg-dome-bg-primary">
-      <Header />
       <main className="max-w-[1152px] mx-auto px-6 md:px-8 py-12 md:py-16">
         <div className="mb-8">
           <Link href="/saved">

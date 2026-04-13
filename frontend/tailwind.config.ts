@@ -12,79 +12,77 @@ const config: Config = {
       fontFamily: {
         sans: ["Inter", '"Helvetica Neue"', "Arial", "sans-serif"],
         mono: ['"JetBrains Mono"', '"Fira Code"', "monospace"],
-        // Legacy aliases — kept so font-display / font-body classnames still resolve
         display: ["Inter", '"Helvetica Neue"', "Arial", "sans-serif"],
         body: ["Inter", '"Helvetica Neue"', "Arial", "sans-serif"],
       },
       colors: {
         dome: {
           bg: {
-            primary: "#FAFAFA",    // page background
-            secondary: "#FFFFFF",  // cards, header, modals
-            tertiary: "#F5F5F5",   // inputs, metric tiles
-            accent: "#E8F3FF",     // accent-tinted surfaces
+            primary:   "var(--color-bg-subtle)",
+            secondary: "var(--color-bg-base)",
+            tertiary:  "var(--color-bg-muted)",
+            accent:    "var(--color-bg-accent)",
           },
           text: {
-            primary: "#0A0A0A",
-            secondary: "#525252",
-            muted: "#A3A3A3",
-            accent: "#0080FF",
+            primary:   "var(--color-text-primary)",
+            secondary: "var(--color-text-secondary)",
+            muted:     "var(--color-text-tertiary)",
+            accent:    "var(--color-text-accent)",
           },
           accent: {
-            DEFAULT: "#0080FF",    // electric blue — primary brand accent
-            hover: "#40A8FF",
-            active: "#0066CC",
-            subtle: "#E8F3FF",
-            // Legacy aliases — un-migrated classnames still render the correct colour
-            cyan: "#0080FF",
-            lightblue: "#40A8FF",
+            DEFAULT:   "var(--color-accent)",
+            hover:     "var(--color-accent-hover)",
+            active:    "var(--color-accent-active)",
+            subtle:    "var(--color-accent-subtle)",
+            cyan:      "var(--color-accent)",
+            lightblue: "var(--color-accent-hover)",
           },
           border: {
-            DEFAULT: "#E8E8E8",    // dome-border → same as dome-border-DEFAULT
-            subtle: "#F0F0F0",
-            strong: "#D4D4D4",
-            accent: "#99CCFF",
+            DEFAULT: "var(--color-border-default)",
+            subtle:  "var(--color-border-subtle)",
+            strong:  "var(--color-border-strong)",
+            accent:  "var(--color-border-accent)",
           },
           status: {
-            critical: "#DC2626",
-            major: "#D97706",
-            minor: "#0080FF",
-            success: "#16A34A",
+            critical: "var(--color-error)",
+            major:    "var(--color-warning)",
+            minor:    "var(--color-accent)",
+            success:  "var(--color-success)",
           },
         },
       },
       borderRadius: {
-        dome: "8px",           // buttons, inputs, small elements
-        "dome-card": "12px",   // cards, modals, panels
+        dome:        "8px",
+        "dome-card": "12px",
       },
       letterSpacing: {
-        dome: "0.18em",        // eyebrow / overline uppercase labels
-        "dome-tight": "-0.025em",
+        dome:          "0.18em",
+        "dome-tight":  "-0.025em",
         "dome-tighter": "-0.03em",
       },
       keyframes: {
         fadeUp: {
-          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "0%":   { opacity: "0", transform: "translateY(12px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         shimmer: {
-          "0%": { backgroundPosition: "-400px 0" },
+          "0%":   { backgroundPosition: "-400px 0" },
           "100%": { backgroundPosition: "400px 0" },
         },
         blink: {
-          "0%, 50%": { opacity: "1" },
-          "51%, 100%": { opacity: "0" },
+          "0%, 50%":    { opacity: "1" },
+          "51%, 100%":  { opacity: "0" },
         },
         spin: {
-          "0%": { transform: "rotate(0deg)" },
+          "0%":   { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
       },
       animation: {
         "fade-up": "fadeUp 0.4s ease forwards",
-        shimmer: "shimmer 1.4s linear infinite",
-        blink: "blink 1s step-end infinite",
-        spin: "spin 0.8s linear infinite",
+        shimmer:   "shimmer 1.4s linear infinite",
+        blink:     "blink 1s step-end infinite",
+        spin:      "spin 0.8s linear infinite",
       },
     },
   },

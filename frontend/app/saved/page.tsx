@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Header } from "@/components/layout/Header";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -134,7 +133,6 @@ export default function SavedPage() {
 
   return (
     <div className="flex-1 bg-dome-bg-primary">
-      <Header />
       <main className="max-w-[1152px] mx-auto px-6 md:px-8 py-12 md:py-16">
         <div className="mb-8">
           <SectionLabel>Library</SectionLabel>

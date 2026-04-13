@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Header } from "@/components/layout/Header";
 import { AnalysisForm } from "@/components/analyzer/AnalysisForm";
 import { AnalysisSkeleton } from "@/components/analyzer/AnalysisSkeleton";
 import { StatusCycler } from "@/components/analyzer/StatusCycler";
@@ -44,8 +43,6 @@ export default function HomePage() {
 
   return (
     <div className="flex-1 bg-dome-bg-primary">
-      <Header />
-
       <main className="max-w-[1152px] mx-auto px-6 md:px-8 py-12 md:py-16">
         {/* Hero */}
         <div className="mb-10">

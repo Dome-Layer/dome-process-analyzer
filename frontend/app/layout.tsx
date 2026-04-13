@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
 const inter = Inter({
@@ -32,6 +33,19 @@ export const metadata: Metadata = {
   },
 };
 
+// Runs before first paint — prevents theme flash
+const themeScript = `
+(function() {
+  try {
+    var saved = localStorage.getItem('dome-theme');
+    var theme = (saved === 'dark' || saved === 'light')
+      ? saved
+      : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: {
@@ -41,9 +55,15 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="flex flex-col min-h-screen">
         <AuthProvider>
+          <Header />
           {children}
           <Footer />
         </AuthProvider>
