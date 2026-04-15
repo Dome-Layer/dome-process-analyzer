@@ -2,6 +2,9 @@
 const nextConfig = {
   async headers() {
     const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? "";
+    const authBackend = process.env.NEXT_PUBLIC_AUTH_BACKEND ?? "";
+    // Collect distinct non-empty backend origins for connect-src
+    const backendOrigins = [...new Set([apiBase, authBackend].filter(Boolean))].join(" ");
     return [
       {
         source: "/(.*)",
@@ -24,8 +27,8 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // Mermaid renders SVG via data URIs; Next.js image optimisation uses blob:.
               "img-src 'self' data: blob:",
-              // Allow XHR/fetch to the Railway backend.
-              `connect-src 'self'${apiBase ? ` ${apiBase}` : ""}`,
+              // Allow XHR/fetch to Railway backend (NEXT_PUBLIC_API_BASE and/or NEXT_PUBLIC_AUTH_BACKEND).
+              `connect-src 'self'${backendOrigins ? ` ${backendOrigins}` : ""}`,
               // Google Fonts: CSS from googleapis.com, font files from gstatic.com.
               "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
               // Disallow embedding in any frame.
