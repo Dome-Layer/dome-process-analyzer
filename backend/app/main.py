@@ -18,13 +18,6 @@ app = FastAPI(
 
 # CORS
 origins = [o.strip() for o in settings.allowed_origins.split(",")]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Session-Token"],
-)
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -40,8 +33,18 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 
-app.add_middleware(SecurityHeadersMiddleware)
+# Middleware is applied in reverse registration order (last added = outermost).
+# CORSMiddleware must be outermost so CORS headers are present on ALL responses,
+# including 429s returned by RateLimitMiddleware before reaching the route.
 app.add_middleware(RateLimitMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Session-Token"],
+)
 
 # Routers
 app.include_router(analysis.router)
