@@ -8,6 +8,7 @@ import { AnalysisResult } from "@/components/analyzer/AnalysisResult";
 import { useAnalysis } from "@/hooks/useAnalysis";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
+import AuthGuard from "@/components/AuthGuard";
 
 export default function HomePage() {
   const { analysis, analysisId, isSubmitting, isRefining, error, submit, refine, reset } =
@@ -42,6 +43,7 @@ export default function HomePage() {
   }, [analysis]);
 
   return (
+    <AuthGuard>
     <div className="flex-1 bg-dome-bg-primary">
       <main className="max-w-[1152px] mx-auto px-6 md:px-8 py-12 md:py-16">
         {/* Hero */}
@@ -103,5 +105,6 @@ export default function HomePage() {
         )}
       </main>
     </div>
+    </AuthGuard>
   );
 }
