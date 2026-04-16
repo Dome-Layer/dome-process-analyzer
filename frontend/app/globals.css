@@ -166,6 +166,35 @@ body {
   border-bottom-color: var(--color-border-subtle);
 }
 
+/* ─── Buttons ────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-in-out);
+  white-space: nowrap;
+  border: none;
+  outline: none;
+  text-decoration: none;
+  font-family: inherit;
+}
+.btn:focus-visible { box-shadow: 0 0 0 3px var(--color-focus-ring); }
+
+.btn-neutral {
+  background: var(--color-bg-muted);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
+}
+.btn-neutral:hover  { background: var(--color-bg-subtle); border-color: var(--color-border-strong); }
+.btn-neutral:active { transform: scale(0.98); }
+
 /* ─── Theme toggle button ────────────────────────────────────────── */
 .theme-toggle {
   display: flex;

@@ -29,9 +29,15 @@ export function Header() {
             </Link>
 
             {isAuthenticated ? (
-              <Button variant="secondary" onClick={() => signOut()}>
+              <button
+                onClick={async () => {
+                  await signOut();
+                  window.location.href = "https://domelayer.com/login";
+                }}
+                className="btn btn-neutral"
+              >
                 Sign out
-              </Button>
+              </button>
             ) : (
               <Button variant="primary" onClick={() => setAuthOpen(true)}>
                 Sign in

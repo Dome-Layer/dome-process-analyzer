@@ -100,8 +100,16 @@ days. Meanwhile, the new hire has no computer. Payroll is notified separately vi
 a shared Excel sheet on SharePoint that Finance and HR both edit. There is no
 formal checklist and tasks are frequently missed, requiring follow-up emails.
 ```
-
 This description demonstrates: manual handoffs, shadow IT risk (shared Excel), bottlenecks (laptop delay), and multiple automation opportunities.
+
+
+```
+The process is triggered when a (new) client is interested in a TCF facility (the initiation phase). The TCF Relationship Manager (CF RM) discusses with the client and the risk party the exact finance needs, outline of the structure and applicable conditions. In addition (if applicable) the CF RM requests room under bank-, sovereign- and/or country limits. Eventually, the CF RM decides in consultation with Local/Global Sector Head (LSH/GSH) whether the deal is desirable.
+In the credit approval phase, the CF RM and Credit Analyst (CA) start the credit approval process and once all approvals are obtained, an offer is submitted to the client. After acceptance of this offer, legal documentation is drafted by the Facility Agent (in case of club deal or syndicated facility) , by Legal Wholesale or by external Lawyers (deal documentation phase). Once the Customer Due Diligence (CDD) has been finalized, deal documentation is signed and (if applicable) insurance is arranged, Credit Control instructs COS to enter the facility in ACBS and Atlas (implement facility phase).
+Then, CSG takes over the daily monitoring of the outstanding exposure(s) and related collateral value(s). After approval of CSG transactions will be processed by the different back offices (disbursement and monitoring phase).
+After full repayment and cancellation of the facility, the process is ended (termination phase).
+```
+
 
 ---
 
