@@ -38,7 +38,16 @@ export function MermaidDiagram({ chart, className }: Props) {
         });
 
         const id = `mermaid-${Math.random().toString(36).slice(2)}`;
-        const { svg } = await mermaid.render(id, chart);
+        let svg: string;
+        try {
+          const result = await mermaid.render(id, chart);
+          svg = result.svg;
+        } finally {
+          // Mermaid v10 appends a temporary div (id=`d${id}`) to document.body
+          // for rendering. It isn't always removed on error, leaving the raw
+          // error text visible at the bottom of the page.
+          document.getElementById(`d${id}`)?.remove();
+        }
 
         // Mermaid v10 sometimes returns an error SVG instead of throwing.
         // Detect this by checking for its error marker class.
