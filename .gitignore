@@ -39,3 +39,6 @@ htmlcov/
 
 # Docker
 *.log
+
+# Various
+TOOL_CONTEXT.md
