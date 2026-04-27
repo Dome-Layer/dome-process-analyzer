@@ -42,3 +42,7 @@ htmlcov/
 
 # Various
 TOOL_CONTEXT.md
+backend/SESSION_LOG.md
+
+# Claude Code IDE configs — contain absolute local paths, not for public repos
+.claude/

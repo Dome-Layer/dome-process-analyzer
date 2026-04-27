@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     # Frontend base URL — used as emailRedirectTo in magic link emails.
     # Must match an allowed redirect URL in Supabase dashboard.
     site_url: str = "http://localhost:3000"
+    # Magic link callback URL. Intentionally points to the central domelayer.com auth
+    # callback so all DOME tools share the same login flow and shared cookie domain.
+    # Override per-deployment when a dedicated auth service is introduced.
+    auth_callback_url: str = "https://domelayer.com/auth/callback"
     cache_ttl_seconds: int = 3600
 
     model_config = {

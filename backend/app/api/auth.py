@@ -55,7 +55,7 @@ async def request_magic_link(body: MagicLinkRequest):
     try:
         supabase.auth.sign_in_with_otp({
             "email": body.email,
-            "options": {"email_redirect_to": "https://domelayer.com/auth/callback"},
+            "options": {"email_redirect_to": settings.auth_callback_url},
         })
     except Exception as e:
         logger.error("magic_link_send_failed", email_domain=body.email.split("@")[1], error=str(e))

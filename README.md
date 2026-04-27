@@ -6,6 +6,8 @@ Paste a plain-language process description and get back a structured analysis: p
 
 Built by [Dome](https://www.domelayer.com) — the AI layer for governed operations.
 
+> Part of the [DOME portfolio](https://www.domelayer.com) · **Phase: Discover**
+
 ## Live
 
 - **App**: https://analyzer.domelayer.com
@@ -63,10 +65,6 @@ cp .env.example .env.local   # set NEXT_PUBLIC_API_BASE=http://localhost:8000
 
 > **Note:** The frontend calls the backend directly (not via the Next.js proxy) because analysis takes ~40 seconds, which exceeds the proxy timeout. `NEXT_PUBLIC_API_BASE` must point at the backend URL.
 
-### Dev Server Shortcuts (Claude Code)
-
-Both server configurations are saved in `.claude/launch.json`. When working in Claude Code, use `preview_start` to launch either server without leaving the editor.
-
 ---
 
 ## Environment Variables
@@ -88,6 +86,7 @@ Both server configurations are saved in `.claude/launch.json`. When working in C
 | `ENVIRONMENT` | Yes | `development` \| `production` |
 | `ALLOWED_ORIGINS` | Yes | Comma-separated CORS origins |
 | `SITE_URL` | Yes | Frontend URL — used in magic link email redirects |
+| `AUTH_CALLBACK_URL` | No | Magic link callback URL; defaults to `https://domelayer.com/auth/callback` |
 | `CACHE_TTL_SECONDS` | No | In-memory analysis cache TTL, default `3600` |
 
 ### Frontend (`frontend/.env.local`)
@@ -95,8 +94,7 @@ Both server configurations are saved in `.claude/launch.json`. When working in C
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_API_BASE` | Direct backend URL (bypasses Next.js proxy) |
-| `NEXT_PUBLIC_AUTH_BACKEND` | Backend auth endpoint |
-| `NEXT_PUBLIC_SITE_URL` | Frontend URL for magic link redirect |
+| `NEXT_PUBLIC_AUTH_BACKEND` | Backend auth endpoint (usually same as above) |
 
 ---
 

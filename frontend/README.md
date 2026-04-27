@@ -32,14 +32,13 @@ Runs on http://localhost:3000.
 | `/saved` | List saved analyses (auth required) |
 | `/saved/[id]` | Read-only detail view for a saved analysis (auth required) |
 | `/auth/callback` | Supabase magic link landing page |
-| `/unlock` | Passphrase gate (if `SITE_PASSPHRASE` is set) |
 
 ## Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `NEXT_PUBLIC_API_BASE` | Yes | Backend base URL (no trailing slash) |
-| `SITE_PASSPHRASE` | No | If set, gates the app behind a passphrase |
+| `NEXT_PUBLIC_AUTH_BACKEND` | Yes | Base URL of the FastAPI auth endpoints (usually same as above) |
 
 ## Deployment (Vercel)
 
@@ -50,7 +49,7 @@ Deployed on Vercel from the `frontend/` subdirectory.
 | Variable | Value |
 |----------|-------|
 | `NEXT_PUBLIC_API_BASE` | `https://dome-process-analyzer-production.up.railway.app` |
-| `SITE_PASSPHRASE` | Your chosen passphrase |
+| `NEXT_PUBLIC_AUTH_BACKEND` | `https://dome-process-analyzer-production.up.railway.app` |
 
 **Live URL**: https://analyzer.domelayer.com
 
