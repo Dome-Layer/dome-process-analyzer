@@ -142,7 +142,7 @@ See `backend/README.md` for per-layer details.
 
 ### Supabase keep-alive
 
-The Supabase free tier pauses after 7 days of inactivity. A Claude Code scheduled task (`supabase-keepalive`) pings the REST API every 4 days to prevent this. For production, add an UptimeRobot monitor on `/api/v1/health` so keep-alive runs independently of your local machine.
+The Supabase free tier pauses after 7 days of inactivity. Add an [UptimeRobot](https://uptimerobot.com) monitor on `/api/v1/health` (free tier, 5-minute interval) to keep the project active independently of any local setup.
 
 ---
 
