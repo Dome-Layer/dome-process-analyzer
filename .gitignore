@@ -1,7 +1,10 @@
-# Environment — never commit credentials
+# ── Secrets — NEVER commit these ──────────────────────────────────────────────
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
 
 # Node
 node_modules/
