@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     auth_callback_url: str = "https://domelayer.com/auth/callback"
     cache_ttl_seconds: int = 3600
 
+    # Hourly cost-cap on /api/v1/analysis. The middleware-level burst limit
+    # (10/60s) is independent of these and applies to everyone.
+    analysis_hourly_anon_limit: int = 3
+    analysis_hourly_auth_limit: int = 30
+    analysis_hourly_window_seconds: int = 3600
+
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",

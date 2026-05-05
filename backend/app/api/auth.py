@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
@@ -38,9 +39,35 @@ def get_current_user(request: Request) -> dict:
         if user is None:
             raise HTTPException(status_code=401, detail="Invalid or expired token.")
         return {"user_id": user.id, "email": user.email}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.warning("auth_verification_failed", error=str(e))
         raise HTTPException(status_code=401, detail="Invalid or expired token.")
+
+
+def get_current_user_optional(request: Request) -> Optional[dict]:
+    """Dependency for endpoints with opt-in auth (e.g. the public-demo
+    analysis route).
+
+    Contract:
+      * Missing or non-bearer Authorization header → returns ``None``
+        (caller treats the request as anonymous).
+      * Bearer token present but invalid/expired → raises ``HTTPException(401)``
+        (we do **not** silently demote stale-token requests to the anonymous
+        bucket — that produces a confusing UX where a signed-in user with an
+        expired token quietly hits the 3/hr/IP cap and cannot tell why).
+      * Valid token → returns ``{"user_id", "email"}`` identical to
+        :func:`get_current_user`.
+
+    Do **not** swap this in for :func:`get_current_user` on routes that
+    require authentication — the missing-header branch returns ``None`` and
+    would silently bypass auth.
+    """
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return None
+    return get_current_user(request)
 
 
 @router.post(

@@ -1,12 +1,24 @@
 """
-Sliding-window rate limiter middleware.
+Sliding-window rate limiter.
 
-Uses Redis when REDIS_URL is configured (shared across all instances),
-falls back to in-memory when Redis is not available (single-instance only).
+Two consumers share one store:
+
+1. ``RateLimitMiddleware`` — applies short burst limits per (method, path)
+   bucketed by client IP. Configured via ``_LIMITS`` below.
+
+2. Route handlers — call :func:`check_rate_limit` directly when they need
+   auth-aware buckets (e.g. anonymous-IP vs authenticated-user hourly caps).
+   The shared singleton is exposed via :func:`get_store`.
+
+Backed by Redis when ``REDIS_URL`` is configured (shared across instances),
+falls back to in-process memory when Redis is not available (single-instance
+only). Both stores fail open on transient I/O errors so a Redis outage cannot
+take the analysis endpoint down.
 """
 import time
 from collections import defaultdict
 from threading import Lock
+from typing import Optional
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -24,7 +36,8 @@ _LIMITS: list[tuple[tuple[str, str], bool, int, int]] = [
 ]
 
 
-def _get_client_ip(request: Request) -> str:
+def get_client_ip(request: Request) -> str:
+    """Extract the client IP from X-Forwarded-For or fall back to peer address."""
     forwarded_for = request.headers.get("X-Forwarded-For", "")
     if forwarded_for:
         return forwarded_for.split(",")[0].strip()
@@ -41,16 +54,25 @@ class _RedisStore:
     def check(self, key: str, limit: int, window: int) -> tuple[int, bool]:
         now = time.time()
         cutoff = now - window
-        pipe = self._r.pipeline()
-        pipe.zremrangebyscore(key, "-inf", cutoff)
-        pipe.zadd(key, {str(now): now})
-        pipe.zcard(key)
-        pipe.expire(key, window + 1)
-        results = pipe.execute()
+        try:
+            pipe = self._r.pipeline()
+            pipe.zremrangebyscore(key, "-inf", cutoff)
+            pipe.zadd(key, {str(now): now})
+            pipe.zcard(key)
+            pipe.expire(key, window + 1)
+            results = pipe.execute()
+        except Exception as e:
+            # Fail open: a Redis outage must not 500 the endpoint.
+            logger.warning("rate_limiter_redis_check_failed", key=key, error=str(e))
+            return limit, False
+
         count = results[2]  # zcard result
         if count > limit:
-            # Remove the entry we just added — request is rejected
-            self._r.zrem(key, str(now))
+            # Remove the entry we just added — request is rejected.
+            try:
+                self._r.zrem(key, str(now))
+            except Exception as e:
+                logger.warning("rate_limiter_redis_zrem_failed", key=key, error=str(e))
             return 0, True
         return max(limit - count, 0), False
 
@@ -88,17 +110,40 @@ def _build_store():
     return _MemoryStore()
 
 
+# Module-level singleton, lazily initialised. Tests monkey-patch this directly
+# to reset state between cases.
+_cached_store: Optional[object] = None
+
+
+def get_store():
+    """Return the shared rate-limit store, initialising it on first call."""
+    global _cached_store
+    if _cached_store is None:
+        _cached_store = _build_store()
+    return _cached_store
+
+
+def check_rate_limit(key: str, limit: int, window: int) -> tuple[int, bool]:
+    """Check ``key`` against ``limit`` within ``window`` seconds.
+
+    Returns ``(remaining, is_limited)``. Fails open on store errors.
+    """
+    try:
+        return get_store().check(key, limit, window)
+    except Exception as e:
+        logger.warning("rate_limiter_check_failed", key=key, error=str(e))
+        return limit, False
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app):
-        super().__init__(app)
-        self._store = _build_store()
+    """Burst-limit middleware. Reads the shared store via ``get_store()``."""
 
     async def dispatch(self, request: Request, call_next):
         limit, window = self._get_limit(request)
         if limit is not None:
-            ip = _get_client_ip(request)
+            ip = get_client_ip(request)
             bucket_key = f"rl:{ip}:{request.url.path}"
-            remaining, is_limited = self._store.check(bucket_key, limit, window)
+            remaining, is_limited = check_rate_limit(bucket_key, limit, window)
             if is_limited:
                 return JSONResponse(
                     status_code=429,

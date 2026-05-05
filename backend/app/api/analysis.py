@@ -14,11 +14,13 @@ def _parse_dt(value: str) -> datetime:
     )
     return datetime.fromisoformat(value)
 
-from fastapi import APIRouter, Depends, HTTPException, Header, Request
+from fastapi import APIRouter, Depends, HTTPException, Header, Request, Response
 
-from app.api.auth import get_current_user
+from app.api.auth import get_current_user, get_current_user_optional
 from app.core.cache import analysis_cache
+from app.core.config import settings
 from app.core.db import get_db
+from app.core.limiter import check_rate_limit, get_client_ip
 from app.core.logging import get_logger
 from app.models.schemas import (
     AnalysisDetailResponse,
@@ -44,10 +46,55 @@ router = APIRouter(prefix="/api/v1/analysis", tags=["analysis"])
     "",
     response_model=AnalysisResponse,
     status_code=201,
-    responses={422: {"model": ErrorResponse}, 503: {"model": ErrorResponse}},
+    responses={
+        422: {"model": ErrorResponse},
+        429: {"model": ErrorResponse},
+        503: {"model": ErrorResponse},
+    },
 )
-async def create_analysis(request: Request, body: AnalysisRequest):
-    """Submit a process description for analysis. No auth required."""
+async def create_analysis(
+    request: Request,
+    response: Response,
+    body: AnalysisRequest,
+    user: Optional[dict] = Depends(get_current_user_optional),
+):
+    """Submit a process description for analysis.
+
+    The endpoint accepts both anonymous and authenticated callers. A short
+    burst limit (10/60s/IP) is applied by the rate-limit middleware to
+    everyone; an additional cost-cap window (3/hr/IP anonymous, 30/hr/user
+    authenticated) is enforced here so anonymous traffic cannot drain the
+    Anthropic budget.
+    """
+    if user is not None:
+        bucket_key = f"rl:hourly:user:{user['user_id']}:analysis"
+        hourly_limit = settings.analysis_hourly_auth_limit
+    else:
+        bucket_key = f"rl:hourly:anon:{get_client_ip(request)}:analysis"
+        hourly_limit = settings.analysis_hourly_anon_limit
+
+    hourly_window = settings.analysis_hourly_window_seconds
+    remaining, is_limited = check_rate_limit(bucket_key, hourly_limit, hourly_window)
+
+    if is_limited:
+        logger.info(
+            "analysis_hourly_limit_exceeded",
+            authenticated=user is not None,
+            limit=hourly_limit,
+        )
+        raise HTTPException(
+            status_code=429,
+            detail="Hourly limit exceeded. Please try again later.",
+            headers={
+                "Retry-After": str(hourly_window),
+                "X-RateLimit-Hourly-Limit": str(hourly_limit),
+                "X-RateLimit-Hourly-Remaining": "0",
+            },
+        )
+
+    response.headers["X-RateLimit-Hourly-Limit"] = str(hourly_limit)
+    response.headers["X-RateLimit-Hourly-Remaining"] = str(remaining)
+
     service = AnalysisService()
     return await service.run(body)
 
