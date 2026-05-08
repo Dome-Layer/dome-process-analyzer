@@ -2,19 +2,7 @@ import re
 from datetime import datetime, timezone
 from typing import Optional
 
-
-def _parse_dt(value: str) -> datetime:
-    """Parse an ISO datetime string from Supabase, tolerating non-standard
-    fractional-second precision (e.g. 5 digits). Python 3.9 fromisoformat()
-    requires exactly 0 or 6 fractional digits; pad/truncate to 6."""
-    value = re.sub(
-        r"\.(\d+)([+Z\-]|$)",
-        lambda m: "." + m.group(1).ljust(6, "0")[:6] + m.group(2),
-        value,
-    )
-    return datetime.fromisoformat(value)
-
-from fastapi import APIRouter, Depends, HTTPException, Header, Request, Response
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 
 from app.api.auth import get_current_user, get_current_user_optional
 from app.core.cache import analysis_cache
@@ -36,6 +24,19 @@ from app.models.schemas import (
     SaveResponse,
 )
 from app.services.analysis import AnalysisService
+
+
+def _parse_dt(value: str) -> datetime:
+    """Parse an ISO datetime string from Supabase, tolerating non-standard
+    fractional-second precision (e.g. 5 digits). Python 3.9 fromisoformat()
+    requires exactly 0 or 6 fractional digits; pad/truncate to 6."""
+    value = re.sub(
+        r"\.(\d+)([+Z\-]|$)",
+        lambda m: "." + m.group(1).ljust(6, "0")[:6] + m.group(2),
+        value,
+    )
+    return datetime.fromisoformat(value)
+
 
 logger = get_logger(__name__)
 
@@ -187,7 +188,9 @@ async def save_analysis(
         "total_steps": analysis.metrics.total_steps,
         "governance_flags_critical": critical_flags,
         "automation_opportunities": len(analysis.automation_opportunities),
-        "analysis_json": analysis.model_dump(mode="json"),  # stored as JSONB; never contains input text
+        "analysis_json": analysis.model_dump(
+            mode="json"
+        ),  # stored as JSONB; never contains input text
         "created_at": analysis.created_at.isoformat(),
         "saved_at": now.isoformat(),
     }

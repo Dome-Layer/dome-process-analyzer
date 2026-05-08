@@ -1,23 +1,22 @@
 """Basic endpoint smoke tests for the Dome Process Analyzer API."""
 
-import json
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from app.main import app
 from app.api.auth import get_current_user_optional
 from app.core import limiter
-from app.core.cache import analysis_cache
-from app.models.schemas import ProcessAnalysis, ConfidenceLevel
+from app.main import app
+from app.models.schemas import ProcessAnalysis
 
 client = TestClient(app)
 
 
 # -- Rate-limit isolation -----------------------------------------------------
+
 
 @pytest.fixture(autouse=True)
 def _isolated_rate_limit_store(monkeypatch):
@@ -43,6 +42,7 @@ def _override_optional_auth_as_user():
 
 
 # -- Fixtures / Helpers -------------------------------------------------------
+
 
 def _make_fake_analysis(analysis_id: str = "test-id") -> dict:
     """Return a minimal valid ProcessAnalysis dict for testing."""
@@ -125,6 +125,7 @@ def _make_fake_analysis(analysis_id: str = "test-id") -> dict:
 
 # -- Health Check -------------------------------------------------------------
 
+
 def test_health_check():
     response = client.get("/api/v1/health")
     assert response.status_code == 200
@@ -134,6 +135,7 @@ def test_health_check():
 
 
 # -- POST /api/v1/analysis ---------------------------------------------------
+
 
 def test_create_analysis_validation_error():
     """Description too short should return 422."""
@@ -162,7 +164,8 @@ def test_create_analysis_success(mock_run):
     response = client.post(
         "/api/v1/analysis",
         json={
-            "description": "A " * 30 + "business process that involves multiple steps and systems for testing purposes.",
+            "description": "A " * 30
+            + "business process that involves multiple steps and systems for testing purposes.",
             "process_name": "Test Process",
             "domain_hint": "testing",
         },
@@ -177,6 +180,7 @@ def test_create_analysis_success(mock_run):
 
 # -- GET /api/v1/analysis/{id} (without auth) --------------------------------
 
+
 def test_get_analysis_no_auth():
     """Accessing a saved analysis without auth should return 401."""
     response = client.get("/api/v1/analysis/some-id")
@@ -185,6 +189,7 @@ def test_get_analysis_no_auth():
 
 # -- GET /api/v1/analysis (list, without auth) --------------------------------
 
+
 def test_list_analyses_no_auth():
     """Listing analyses without auth should return 401."""
     response = client.get("/api/v1/analysis")
@@ -192,6 +197,7 @@ def test_list_analyses_no_auth():
 
 
 # -- POST /api/v1/analysis/{id}/refine (without session token) ----------------
+
 
 def test_refine_analysis_no_session_token():
     """Refining without X-Session-Token should return 401."""
@@ -204,6 +210,7 @@ def test_refine_analysis_no_session_token():
 
 # -- DELETE /api/v1/analysis/{id} (without auth) -----------------------------
 
+
 def test_delete_analysis_no_auth():
     """Deleting without auth should return 401."""
     response = client.delete("/api/v1/analysis/some-id")
@@ -211,6 +218,7 @@ def test_delete_analysis_no_auth():
 
 
 # -- POST /api/v1/auth/magic-link -------------------------------------------
+
 
 def test_magic_link_invalid_email():
     """Invalid email format should return 422."""
@@ -223,6 +231,7 @@ def test_magic_link_invalid_email():
 
 # -- POST /api/v1/auth/verify -----------------------------------------------
 
+
 def test_verify_missing_token():
     """Missing token field should return 422."""
     response = client.post(
@@ -234,10 +243,13 @@ def test_verify_missing_token():
 
 # -- Rate limiting on /api/v1/analysis ---------------------------------------
 
+
 def _analysis_payload() -> dict:
     """Return a minimum-valid analysis request body (>= 400 chars)."""
     return {
-        "description": "A " * 30 + "business process that involves multiple steps and systems for testing rate-limit behaviour. " * 4,
+        "description": "A " * 30
+        + "business process that involves multiple steps and systems for testing rate-limit behaviour. "
+        * 4,
         "process_name": "Rate-limit test",
         "domain_hint": "testing",
     }
@@ -247,6 +259,7 @@ def _success_mock():
     """Build the AnalysisResponse object that AnalysisService.run is patched to return."""
     fake_analysis = ProcessAnalysis.model_validate(_make_fake_analysis())
     from app.models.schemas import AnalysisResponse, AnalysisStatus
+
     return AnalysisResponse(
         analysis_id="rl-test",
         status=AnalysisStatus.complete,
@@ -275,9 +288,7 @@ def test_create_analysis_anonymous_hourly_cap(mock_run):
 
 
 @patch("app.services.analysis.AnalysisService.run")
-def test_create_analysis_authenticated_higher_cap(
-    mock_run, _override_optional_auth_as_user
-):
+def test_create_analysis_authenticated_higher_cap(mock_run, _override_optional_auth_as_user):
     """Authenticated users get 30/hour; the 31st request is 429."""
     mock_run.return_value = _success_mock()
     headers = {"X-Forwarded-For": "8.8.8.8", "Authorization": "Bearer test-token"}
@@ -299,9 +310,7 @@ def test_create_analysis_authenticated_higher_cap(
 
 
 @patch("app.services.analysis.AnalysisService.run")
-def test_burst_limit_still_fires_for_authenticated_user(
-    mock_run, _override_optional_auth_as_user
-):
+def test_burst_limit_still_fires_for_authenticated_user(mock_run, _override_optional_auth_as_user):
     """The middleware-level burst limit (10/60s/IP) applies regardless of
     auth state. Sending 11 fast requests as an authenticated user from a
     single IP produces an 11th 429 with the burst-window headers, NOT the

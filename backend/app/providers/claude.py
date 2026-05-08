@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import asyncio
 import json
+
 import anthropic
 
-from app.providers.base import LLMProvider
 from app.core.config import settings
 from app.core.logging import get_logger
+from app.providers.base import LLMProvider
 
 logger = get_logger(__name__)
 
@@ -43,7 +44,7 @@ class ClaudeProvider(LLMProvider):
                 raise ConnectionError(f"Claude API unreachable: {e}") from e
             except anthropic.APIStatusError as e:
                 if e.status_code == 529 and attempt < 2:
-                    wait = 2 ** attempt  # 1s, 2s
+                    wait = 2**attempt  # 1s, 2s
                     logger.warning("claude_overloaded_retry", attempt=attempt + 1, wait=wait)
                     await asyncio.sleep(wait)
                     last_exc = e
@@ -52,7 +53,9 @@ class ClaudeProvider(LLMProvider):
                 raise ConnectionError(f"Claude API error ({e.status_code}): {e}") from e
 
         if last_exc is not None:
-            raise ConnectionError(f"Claude API overloaded after 3 attempts: {last_exc}") from last_exc
+            raise ConnectionError(
+                f"Claude API overloaded after 3 attempts: {last_exc}"
+            ) from last_exc
 
         raw_text = response.content[0].text.strip()
 

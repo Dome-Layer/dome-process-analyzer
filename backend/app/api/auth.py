@@ -80,10 +80,12 @@ async def request_magic_link(body: MagicLinkRequest):
     supabase = get_db()
 
     try:
-        supabase.auth.sign_in_with_otp({
-            "email": body.email,
-            "options": {"email_redirect_to": settings.auth_callback_url},
-        })
+        supabase.auth.sign_in_with_otp(
+            {
+                "email": body.email,
+                "options": {"email_redirect_to": settings.auth_callback_url},
+            }
+        )
     except Exception as e:
         logger.error("magic_link_send_failed", email_domain=body.email.split("@")[1], error=str(e))
         raise HTTPException(status_code=400, detail=f"Failed to send magic link: {e}")
@@ -104,9 +106,7 @@ async def verify_token(body: VerifyRequest):
     supabase = get_db()
 
     try:
-        session_response = supabase.auth.verify_otp(
-            {"token": body.token, "type": "magiclink"}
-        )
+        session_response = supabase.auth.verify_otp({"token": body.token, "type": "magiclink"})
         session = session_response.session
         user = session_response.user
         if session is None or user is None:

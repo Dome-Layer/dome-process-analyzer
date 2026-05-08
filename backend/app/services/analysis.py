@@ -19,9 +19,9 @@ from app.models.schemas import (
     RefineRequest,
     RefineResponse,
 )
+from app.providers.azure_openai import AzureOpenAIProvider
 from app.providers.base import LLMProvider
 from app.providers.claude import ClaudeProvider
-from app.providers.azure_openai import AzureOpenAIProvider
 from app.providers.ollama import OllamaProvider
 from app.services.governance import emit_governance_event
 
@@ -38,7 +38,7 @@ def _get_provider() -> LLMProvider:
     provider_cls = providers.get(settings.llm_provider)
     if provider_cls is None:
         raise ValueError(f"Unknown LLM_PROVIDER: {settings.llm_provider}")
-    return provider_cls()
+    return provider_cls()  # type: ignore[abstract]
 
 
 _PROMPT_TAG_STRIP = re.compile(r"</?process_description>", re.IGNORECASE)
@@ -78,7 +78,7 @@ def _sanitize_mermaid(diagram: str) -> str:
         # This covers ALL positions in the line (start, middle, after -->).
         diagram = re.sub(
             rf'(?<!["\'\w])({re.escape(keyword)})((?:-[\w-]+)?)(?=\s*[\[{{\(]|(?:\s*$)|\s+-->|\s+---)',
-            lambda m, r=replacement: r + m.group(2),
+            lambda m, r=replacement: r + m.group(2),  # type: ignore[misc]
             diagram,
             flags=re.IGNORECASE | re.MULTILINE,
         )
@@ -115,13 +115,10 @@ ERROR_CORRECTION_PROMPT = (
 
 
 class AnalysisService:
-
     def __init__(self):
         self._provider = _get_provider()
 
-    async def run(
-        self, request: AnalysisRequest, user_id: str | None = None
-    ) -> AnalysisResponse:
+    async def run(self, request: AnalysisRequest, user_id: str | None = None) -> AnalysisResponse:
         analysis_id = str(uuid.uuid4())
         session_token = str(uuid.uuid4())
         start_time = time.time()
@@ -137,11 +134,7 @@ class AnalysisService:
         if analysis is None:
             # Retry once with error-correction prompt
             error_msg = self._last_validation_error
-            retry_prompt = (
-                user_prompt
-                + "\n\n"
-                + ERROR_CORRECTION_PROMPT.format(error=error_msg)
-            )
+            retry_prompt = user_prompt + "\n\n" + ERROR_CORRECTION_PROMPT.format(error=error_msg)
             raw = await self._call_llm(retry_prompt, schema)
             analysis = self._validate(raw, analysis_id)
             if analysis is None:
@@ -224,9 +217,7 @@ class AnalysisService:
         if analysis is None:
             error_msg = self._last_validation_error
             retry_prompt = (
-                refinement_prompt
-                + "\n\n"
-                + ERROR_CORRECTION_PROMPT.format(error=error_msg)
+                refinement_prompt + "\n\n" + ERROR_CORRECTION_PROMPT.format(error=error_msg)
             )
             raw = await self._call_llm(retry_prompt, schema)
             analysis = self._validate(raw, analysis_id)

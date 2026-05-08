@@ -15,6 +15,7 @@ falls back to in-process memory when Redis is not available (single-instance
 only). Both stores fail open on transient I/O errors so a Redis outage cannot
 take the analysis endpoint down.
 """
+
 import time
 from collections import defaultdict
 from threading import Lock
@@ -30,9 +31,9 @@ logger = get_logger(__name__)
 
 # (method, path, exact_match): (limit, window_seconds)
 _LIMITS: list[tuple[tuple[str, str], bool, int, int]] = [
-    (("POST", "/api/v1/analysis"),        True,  10, 60),
-    (("POST", "/refine"),                 False, 20, 60),
-    (("POST", "/api/v1/auth/magic-link"), True,   5, 60),
+    (("POST", "/api/v1/analysis"), True, 10, 60),
+    (("POST", "/refine"), False, 20, 60),
+    (("POST", "/api/v1/auth/magic-link"), True, 5, 60),
 ]
 
 
@@ -49,6 +50,7 @@ class _RedisStore:
 
     def __init__(self, redis_url: str):
         import redis as redis_lib
+
         self._r = redis_lib.from_url(redis_url, decode_responses=True)
 
     def check(self, key: str, limit: int, window: int) -> tuple[int, bool]:
@@ -98,6 +100,7 @@ class _MemoryStore:
 
 def _build_store():
     from app.core.config import settings
+
     if settings.redis_url:
         try:
             store = _RedisStore(settings.redis_url)

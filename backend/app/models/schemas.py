@@ -1,10 +1,11 @@
-from pydantic import BaseModel, Field
-from typing import Optional
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 
+from pydantic import BaseModel, Field
 
 # -- Enumerations -------------------------------------------------------------
+
 
 class StepType(str, Enum):
     manual = "manual"
@@ -35,6 +36,7 @@ class ConfidenceLevel(str, Enum):
 
 # -- Process Step -------------------------------------------------------------
 
+
 class ProcessStep(BaseModel):
     id: str
     sequence: int
@@ -50,6 +52,7 @@ class ProcessStep(BaseModel):
 
 
 # -- Systems Map --------------------------------------------------------------
+
 
 class SystemNode(BaseModel):
     id: str
@@ -69,6 +72,7 @@ class SystemIntegration(BaseModel):
 
 # -- Governance Flags ---------------------------------------------------------
 
+
 class GovernanceFlag(BaseModel):
     id: str
     severity: GovernanceSeverity
@@ -81,6 +85,7 @@ class GovernanceFlag(BaseModel):
 
 
 # -- Automation Opportunities -------------------------------------------------
+
 
 class AutomationOpportunity(BaseModel):
     id: str
@@ -95,6 +100,7 @@ class AutomationOpportunity(BaseModel):
 
 
 # -- Process Metrics ----------------------------------------------------------
+
 
 class ProcessMetrics(BaseModel):
     total_steps: int
@@ -111,6 +117,7 @@ class ProcessMetrics(BaseModel):
 
 # -- Clarifying Questions -----------------------------------------------------
 
+
 class ClarifyingQuestion(BaseModel):
     id: str
     question: str
@@ -119,6 +126,7 @@ class ClarifyingQuestion(BaseModel):
 
 
 # -- Root Analysis Model ------------------------------------------------------
+
 
 class ProcessAnalysis(BaseModel):
     analysis_id: str
@@ -144,6 +152,7 @@ class ProcessAnalysis(BaseModel):
 
 
 # -- API Request / Response Models --------------------------------------------
+
 
 class AnalysisStatus(str, Enum):
     processing = "processing"
@@ -247,6 +256,7 @@ class ErrorResponse(BaseModel):
 
 
 # -- Governance Event (shared Dome schema) ------------------------------------
+
 
 class GovernanceEvent(BaseModel):
     agent_id: str

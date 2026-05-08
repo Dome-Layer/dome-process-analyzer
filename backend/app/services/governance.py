@@ -3,8 +3,8 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timezone
 
-from app.models.schemas import GovernanceEvent, ProcessAnalysis
 from app.core.logging import get_logger
+from app.models.schemas import GovernanceEvent, ProcessAnalysis
 
 logger = get_logger(__name__)
 
@@ -47,9 +47,7 @@ def emit_governance_event(
     human_in_loop = "not_required"
     if analysis.clarifying_questions:
         human_in_loop = "recommended"
-    critical_flags = [
-        f for f in analysis.governance_flags if f.severity.value == "critical"
-    ]
+    critical_flags = [f for f in analysis.governance_flags if f.severity.value == "critical"]
     if critical_flags:
         human_in_loop = "required"
 

@@ -27,9 +27,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         if settings.environment == "production":
-            response.headers["Strict-Transport-Security"] = (
-                "max-age=63072000; includeSubDomains"
-            )
+            response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
         return response
 
 
@@ -56,6 +54,7 @@ async def health_check():
     supabase_status = "ok"
     try:
         from app.core.db import get_db
+
         get_db().table("saved_analyses").select("analysis_id").limit(1).execute()
     except Exception:
         supabase_status = "unavailable"
