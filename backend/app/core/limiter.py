@@ -48,20 +48,22 @@ def get_client_ip(request: Request) -> str:
 class _RedisStore:
     """Sliding-window counter backed by Redis sorted sets."""
 
-    def __init__(self, redis_url: str):
+    def __init__(self, redis_url: str, key_prefix: str = ""):
         import redis as redis_lib
 
         self._r = redis_lib.from_url(redis_url, decode_responses=True)
+        self._key_prefix = key_prefix
 
     def check(self, key: str, limit: int, window: int) -> tuple[int, bool]:
         now = time.time()
         cutoff = now - window
+        full_key = f"{self._key_prefix}{key}" if self._key_prefix else key
         try:
             pipe = self._r.pipeline()
-            pipe.zremrangebyscore(key, "-inf", cutoff)
-            pipe.zadd(key, {str(now): now})
-            pipe.zcard(key)
-            pipe.expire(key, window + 1)
+            pipe.zremrangebyscore(full_key, "-inf", cutoff)
+            pipe.zadd(full_key, {str(now): now})
+            pipe.zcard(full_key)
+            pipe.expire(full_key, window + 1)
             results = pipe.execute()
         except Exception as e:
             # Fail open: a Redis outage must not 500 the endpoint.
@@ -72,9 +74,9 @@ class _RedisStore:
         if count > limit:
             # Remove the entry we just added — request is rejected.
             try:
-                self._r.zrem(key, str(now))
+                self._r.zrem(full_key, str(now))
             except Exception as e:
-                logger.warning("rate_limiter_redis_zrem_failed", key=key, error=str(e))
+                logger.warning("rate_limiter_redis_zrem_failed", key=full_key, error=str(e))
             return 0, True
         return max(limit - count, 0), False
 
@@ -103,9 +105,13 @@ def _build_store():
 
     if settings.redis_url:
         try:
-            store = _RedisStore(settings.redis_url)
+            store = _RedisStore(settings.redis_url, key_prefix=settings.ratelimit_prefix)
             store._r.ping()
-            logger.info("rate_limiter_backend", backend="redis")
+            logger.info(
+                "rate_limiter_backend",
+                backend="redis",
+                key_prefix=settings.ratelimit_prefix or "<none>",
+            )
             return store
         except Exception as e:
             logger.warning("rate_limiter_redis_unavailable", error=str(e))

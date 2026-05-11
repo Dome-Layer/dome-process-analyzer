@@ -26,6 +26,10 @@ class Settings(BaseSettings):
 
     # Redis (optional — used for cross-instance rate limiting)
     redis_url: str = ""
+    # Prefix prepended to every Redis key (e.g. "staging:") so production and
+    # staging can share a single Upstash database without colliding buckets.
+    # Empty in production by default — keys stay backwards-compatible.
+    ratelimit_prefix: str = ""
 
     # App
     environment: Literal["development", "staging", "production"] = "development"
