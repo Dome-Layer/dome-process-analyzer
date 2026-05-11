@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     redis_url: str = ""
 
     # App
-    environment: Literal["development", "production"] = "development"
+    environment: Literal["development", "staging", "production"] = "development"
     allowed_origins: str = "http://localhost:3000"
     # Frontend base URL — used as emailRedirectTo in magic link emails.
     # Must match an allowed redirect URL in Supabase dashboard.
@@ -53,7 +53,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_required_secrets(self) -> "Settings":
-        if self.environment == "production":
+        if self.environment in ("staging", "production"):
             missing = [
                 name
                 for name, val in [
@@ -65,7 +65,8 @@ class Settings(BaseSettings):
             ]
             if missing:
                 raise ValueError(
-                    f"Missing required production environment variables: {', '.join(missing)}"
+                    f"Missing required {self.environment} environment variables: "
+                    f"{', '.join(missing)}"
                 )
         return self
 
