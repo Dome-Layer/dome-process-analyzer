@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { getAuthSiteUrl } from "@/lib/auth";
 
 export function Header() {
   const { isAuthenticated, signOut } = useAuth();
@@ -32,7 +33,7 @@ export function Header() {
               <button
                 onClick={async () => {
                   await signOut();
-                  window.location.href = "https://domelayer.com/login";
+                  window.location.href = `${getAuthSiteUrl()}/login`;
                 }}
                 className="btn btn-neutral"
               >
