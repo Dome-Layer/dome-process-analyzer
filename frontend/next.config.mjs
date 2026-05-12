@@ -2,9 +2,6 @@
 const nextConfig = {
   async headers() {
     const apiBase = process.env.NEXT_PUBLIC_API_BASE ?? "";
-    const authBackend = process.env.NEXT_PUBLIC_AUTH_BACKEND ?? "";
-    // Collect distinct non-empty backend origins for connect-src
-    const backendOrigins = [...new Set([apiBase, authBackend].filter(Boolean))].join(" ");
     return [
       {
         source: "/(.*)",
@@ -27,8 +24,10 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // Mermaid renders SVG via data URIs; Next.js image optimisation uses blob:.
               "img-src 'self' data: blob:",
-              // Allow XHR/fetch to Railway backend (NEXT_PUBLIC_API_BASE and/or NEXT_PUBLIC_AUTH_BACKEND).
-              `connect-src 'self'${backendOrigins ? ` ${backendOrigins}` : ""}`,
+              // Direct-mode dev sets NEXT_PUBLIC_API_BASE to a non-same-origin URL;
+              // production runs proxy mode (same-origin via the rewrite below) so
+              // `connect-src 'self'` is enough.
+              `connect-src 'self'${apiBase ? ` ${apiBase}` : ""}`,
               // Google Fonts: CSS from googleapis.com, font files from gstatic.com.
               "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
               // Disallow embedding in any frame.
@@ -41,8 +40,13 @@ const nextConfig = {
   },
 
   async rewrites() {
-    // Only used when NEXT_PUBLIC_API_BASE is not set (local dev without direct backend URL).
-    // In production, NEXT_PUBLIC_API_BASE points directly to the Railway backend.
+    // Production: Vercel serves the frontend and proxies same-origin `/api/*`
+    // requests to the Railway backend via BACKEND_PROXY_URL. Frontend code
+    // calls `/api/v1/...` as a relative path (NEXT_PUBLIC_API_BASE is unset).
+    // Local dev: same proxy setup with BACKEND_PROXY_URL=http://localhost:8000,
+    // OR set NEXT_PUBLIC_API_BASE=http://localhost:8000 to bypass the proxy
+    // entirely (frontend calls localhost directly) — useful for the analysis
+    // endpoint which exceeds Next.js dev-server's proxy timeout.
     const backendUrl = process.env.BACKEND_PROXY_URL ?? "http://localhost:8000";
     return [
       {
