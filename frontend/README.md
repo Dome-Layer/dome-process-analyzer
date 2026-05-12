@@ -15,14 +15,16 @@ Next.js 14 App Router frontend for the Dome Process Analyzer.
 ```bash
 npm install
 cp .env.example .env.local
-# Set NEXT_PUBLIC_API_BASE=http://localhost:8000 in .env.local
+# Pick a backend mode in .env.local — see below.
 ./node_modules/.bin/next dev
 ```
 
 Runs on http://localhost:3000.
 
-> **Note**: Use `NEXT_PUBLIC_API_BASE=http://localhost:8000` to call the backend directly.
-> Do not proxy through Next.js — the backend analysis endpoint takes ~40s and Next.js has a ~30s proxy timeout.
+Two backend modes are supported:
+
+- **Proxy mode** (matches production): leave `NEXT_PUBLIC_API_BASE` unset and set `BACKEND_PROXY_URL=http://localhost:8000`. The Next.js server rewrites `/api/*` requests to the backend. CSP stays at `connect-src 'self'`.
+- **Direct mode** (dev convenience): set `NEXT_PUBLIC_API_BASE=http://localhost:8000`. The frontend calls the backend directly, bypassing the Next.js proxy. Useful when iterating on long requests — Next.js dev-server proxies time out around ~30s and the analysis endpoint can take ~40s.
 
 ## Pages
 
@@ -35,21 +37,22 @@ Runs on http://localhost:3000.
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NEXT_PUBLIC_API_BASE` | Yes | Backend base URL (no trailing slash) |
-| `NEXT_PUBLIC_AUTH_BACKEND` | Yes | Base URL of the FastAPI auth endpoints (usually same as above) |
+| Variable | Scope | Required | Description |
+|----------|-------|----------|-------------|
+| `BACKEND_PROXY_URL` | Server | Yes (proxy mode) | URL the Next.js `/api/*` rewrite proxies to. Set to the Railway backend in production. |
+| `NEXT_PUBLIC_API_BASE` | Client | No | Optional dev override — when set, the frontend calls this URL directly and the proxy is unused. Leave unset in production. |
 
 ## Deployment (Vercel)
 
-Deployed on Vercel from the `frontend/` subdirectory.
+Deployed on Vercel from the `frontend/` subdirectory. Runs in proxy mode: same-origin `/api/*` requests are proxied server-side to Railway.
 
 **Required env vars in Vercel dashboard** (Settings → Environment Variables):
 
 | Variable | Value |
 |----------|-------|
-| `NEXT_PUBLIC_API_BASE` | `https://dome-process-analyzer-production.up.railway.app` |
-| `NEXT_PUBLIC_AUTH_BACKEND` | `https://dome-process-analyzer-production.up.railway.app` |
+| `BACKEND_PROXY_URL` | `https://dome-process-analyzer-production.up.railway.app` |
+
+`NEXT_PUBLIC_API_BASE` is intentionally **unset** in production. The Next.js rewrite plus same-origin `connect-src 'self'` is what keeps the CSP tight.
 
 **Live URL**: https://analyzer.domelayer.com
 
@@ -63,5 +66,6 @@ Deployed on Vercel from the `frontend/` subdirectory.
 ## Notes
 
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are **not** needed — the frontend has no Supabase JS client; all auth calls go through the backend.
+- Sign-out (`DELETE /api/v1/auth/session`) goes through the same proxy route as every other API call — `lib/api.ts:deleteSession()` is the single helper. No separate `NEXT_PUBLIC_AUTH_BACKEND` variable.
 - UptimeRobot (free tier) sends HEAD requests. The health endpoint on the backend explicitly handles both GET and HEAD.
 - Railway redeploys (~2 min) will appear as brief outages in UptimeRobot — this is expected.
