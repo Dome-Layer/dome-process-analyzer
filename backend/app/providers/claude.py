@@ -17,7 +17,7 @@ class ClaudeProvider(LLMProvider):
 
     def __init__(self):
         self._client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key or None)
-        self._model = "claude-sonnet-4-20250514"
+        self._model = settings.llm_text_model
 
     async def generate_structured(
         self,
