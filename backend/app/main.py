@@ -7,7 +7,9 @@ from app.api import analysis, auth
 from app.core.config import settings
 from app.core.limiter import RateLimitMiddleware
 from app.core.logging import setup_logging
+from app.core.sentry import init_sentry
 
+init_sentry()
 setup_logging()
 
 app = FastAPI(
