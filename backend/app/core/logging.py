@@ -45,6 +45,11 @@ def setup_logging() -> None:
     root.addHandler(handler)
     root.setLevel(logging.INFO)
 
+    # Suppress noisy HTTP-client request logs (httpx logs every 200 OK at
+    # INFO which structlog surfaces as "error" in Railway's log viewer).
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 
 def get_logger(name: str = __name__) -> structlog.stdlib.BoundLogger:
     return structlog.get_logger(name)
