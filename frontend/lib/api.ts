@@ -54,6 +54,9 @@ async function request<T>(
  * Sends `Accept: text/event-stream` so the backend returns an SSE stream
  * with keepalive comments (preventing proxy timeouts) and a final
  * `event: result` carrying the JSON payload.
+ *
+ * Falls back to plain-JSON parsing when the reverse-proxy strips the
+ * Accept header and the backend returns a normal JSON response.
  */
 async function requestSSE<T>(
   path: string,
@@ -81,44 +84,39 @@ async function requestSSE<T>(
     throw err;
   }
 
-  // Parse SSE stream — look for "event: result" or "event: error".
-  const reader = res.body!.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
+  // Read the full body and normalise line endings so the SSE field
+  // matching below works regardless of proxy line-ending rewriting.
+  const raw = (await res.text()).replace(/\r\n?/g, "\n");
 
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (value) buffer += decoder.decode(value, { stream: true });
-
-    // Normalise \r\n and bare \r to \n — reverse-proxies (Vercel) may
-    // rewrite line endings, which would break the literal indexOf matches.
-    buffer = buffer.replace(/\r\n?/g, "\n");
-
-    for (const eventType of ["result", "error"] as const) {
-      const prefix = `event: ${eventType}\ndata: `;
-      const idx = buffer.indexOf(prefix);
-      if (idx === -1) continue;
-
-      const dataStart = idx + prefix.length;
-      let lineEnd = buffer.indexOf("\n", dataStart);
-
-      // When the stream is done the final data line may lack a trailing
-      // newline — treat end-of-buffer as the line boundary.
-      if (lineEnd === -1 && done) lineEnd = buffer.length;
-      if (lineEnd === -1) continue;
-
-      const data = buffer.slice(dataStart, lineEnd).trim();
-
-      if (eventType === "result") {
-        return JSON.parse(data) as T;
-      }
-      const { status, detail } = JSON.parse(data);
-      const err = new Error(detail) as Error & { status: number };
-      err.status = status;
+  // --- SSE parsing ---------------------------------------------------
+  // Events are delimited by blank lines.  Each event can carry field
+  // lines like "event: <type>" and "data: <payload>".
+  for (const block of raw.split("\n\n")) {
+    let type = "";
+    let data = "";
+    for (const line of block.split("\n")) {
+      if (line.startsWith("event:")) type = line.slice(6).trim();
+      else if (line.startsWith("data:")) data = line.slice(5).trimStart();
+    }
+    if (type === "result" && data) return JSON.parse(data) as T;
+    if (type === "error" && data) {
+      const payload = JSON.parse(data);
+      const err = new Error(payload.detail) as Error & { status: number };
+      err.status = payload.status;
       throw err;
     }
+  }
 
-    if (done) break;
+  // --- Fallback: plain JSON ------------------------------------------
+  // If the reverse-proxy stripped the Accept header the backend returns
+  // a normal JSON response instead of SSE.
+  const trimmed = raw.trim();
+  if (trimmed.startsWith("{")) {
+    try {
+      return JSON.parse(trimmed) as T;
+    } catch {
+      // not valid JSON — fall through
+    }
   }
 
   throw new Error("Stream ended without a result");
