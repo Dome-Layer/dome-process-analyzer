@@ -90,27 +90,32 @@ async function requestSSE<T>(
     const { done, value } = await reader.read();
     if (value) buffer += decoder.decode(value, { stream: true });
 
-    // Check for a complete result event
-    const resultIdx = buffer.indexOf("event: result\ndata: ");
-    if (resultIdx !== -1) {
-      const dataStart = resultIdx + "event: result\ndata: ".length;
-      const lineEnd = buffer.indexOf("\n", dataStart);
-      if (lineEnd !== -1) {
-        return JSON.parse(buffer.slice(dataStart, lineEnd)) as T;
-      }
-    }
+    // Normalise \r\n and bare \r to \n — reverse-proxies (Vercel) may
+    // rewrite line endings, which would break the literal indexOf matches.
+    buffer = buffer.replace(/\r\n?/g, "\n");
 
-    // Check for an error event
-    const errorIdx = buffer.indexOf("event: error\ndata: ");
-    if (errorIdx !== -1) {
-      const dataStart = errorIdx + "event: error\ndata: ".length;
-      const lineEnd = buffer.indexOf("\n", dataStart);
-      if (lineEnd !== -1) {
-        const { status, detail } = JSON.parse(buffer.slice(dataStart, lineEnd));
-        const err = new Error(detail) as Error & { status: number };
-        err.status = status;
-        throw err;
+    for (const eventType of ["result", "error"] as const) {
+      const prefix = `event: ${eventType}\ndata: `;
+      const idx = buffer.indexOf(prefix);
+      if (idx === -1) continue;
+
+      const dataStart = idx + prefix.length;
+      let lineEnd = buffer.indexOf("\n", dataStart);
+
+      // When the stream is done the final data line may lack a trailing
+      // newline — treat end-of-buffer as the line boundary.
+      if (lineEnd === -1 && done) lineEnd = buffer.length;
+      if (lineEnd === -1) continue;
+
+      const data = buffer.slice(dataStart, lineEnd).trim();
+
+      if (eventType === "result") {
+        return JSON.parse(data) as T;
       }
+      const { status, detail } = JSON.parse(data);
+      const err = new Error(detail) as Error & { status: number };
+      err.status = status;
+      throw err;
     }
 
     if (done) break;
