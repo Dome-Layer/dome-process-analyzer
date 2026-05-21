@@ -10,6 +10,7 @@ from app.core.config import settings
 from app.core.db import get_db
 from app.core.limiter import check_rate_limit, get_client_ip
 from app.core.logging import get_logger
+from app.core.sse import sse_response
 from app.models.schemas import (
     AnalysisDetailResponse,
     AnalysisListResponse,
@@ -97,6 +98,19 @@ async def create_analysis(
     response.headers["X-RateLimit-Hourly-Remaining"] = str(remaining)
 
     service = AnalysisService()
+
+    # SSE mode: keep the connection alive with heartbeat comments while the
+    # LLM processes.  Prevents Vercel rewrite-proxy timeout (~120 s).
+    accept = request.headers.get("accept", "")
+    if "text/event-stream" in accept:
+        return sse_response(
+            service.run(body, user_id=user["user_id"] if user else None),
+            extra_headers={
+                "X-RateLimit-Hourly-Limit": str(hourly_limit),
+                "X-RateLimit-Hourly-Remaining": str(remaining),
+            },
+        )
+
     return await service.run(body)
 
 
@@ -120,6 +134,11 @@ async def refine_analysis(
         raise HTTPException(status_code=401, detail="X-Session-Token header is required.")
 
     service = AnalysisService()
+
+    accept = request.headers.get("accept", "")
+    if "text/event-stream" in accept:
+        return sse_response(service.refine(analysis_id, body, x_session_token))
+
     return await service.refine(analysis_id, body, x_session_token)
 
 

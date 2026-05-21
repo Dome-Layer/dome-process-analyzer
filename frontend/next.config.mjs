@@ -1,3 +1,5 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
@@ -27,7 +29,7 @@ const nextConfig = {
               // Direct-mode dev sets NEXT_PUBLIC_API_BASE to a non-same-origin URL;
               // production runs proxy mode (same-origin via the rewrite below) so
               // `connect-src 'self'` is enough.
-              `connect-src 'self'${apiBase ? ` ${apiBase}` : ""}`,
+              `connect-src 'self' https://*.ingest.de.sentry.io${apiBase ? ` ${apiBase}` : ""}`,
               // Google Fonts: CSS from googleapis.com, font files from gstatic.com.
               "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
               // Disallow embedding in any frame.
@@ -57,4 +59,7 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  disableSourceMapUpload: true,
+});
