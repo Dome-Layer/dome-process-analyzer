@@ -33,7 +33,6 @@ logger = get_logger(__name__)
 _LIMITS: list[tuple[tuple[str, str], bool, int, int]] = [
     (("POST", "/api/v1/analysis"), True, 10, 60),
     (("POST", "/refine"), False, 20, 60),
-    (("POST", "/api/v1/auth/magic-link"), True, 5, 60),
 ]
 
 

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request as StarletteRequest
 
-from app.api import analysis, auth
+from app.api import analysis
 from app.core.config import settings
 from app.core.limiter import RateLimitMiddleware
 from app.core.logging import setup_logging
@@ -48,7 +48,6 @@ app.add_middleware(
 
 # Routers
 app.include_router(analysis.router)
-app.include_router(auth.router)
 
 
 @app.api_route("/api/v1/health", methods=["GET", "HEAD"], tags=["health"])
