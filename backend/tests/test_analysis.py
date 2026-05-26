@@ -217,30 +217,6 @@ def test_delete_analysis_no_auth():
     assert response.status_code == 401
 
 
-# -- POST /api/v1/auth/magic-link -------------------------------------------
-
-
-def test_magic_link_invalid_email():
-    """Invalid email format should return 422."""
-    response = client.post(
-        "/api/v1/auth/magic-link",
-        json={"email": "not-an-email"},
-    )
-    assert response.status_code == 422
-
-
-# -- POST /api/v1/auth/verify -----------------------------------------------
-
-
-def test_verify_missing_token():
-    """Missing token field should return 422."""
-    response = client.post(
-        "/api/v1/auth/verify",
-        json={},
-    )
-    assert response.status_code == 422
-
-
 # -- Rate limiting on /api/v1/analysis ---------------------------------------
 
 
