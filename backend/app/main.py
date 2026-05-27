@@ -1,4 +1,4 @@
-from dome_core.middleware import SecurityHeadersMiddleware
+from dome_core.middleware import RequestIDMiddleware, SecurityHeadersMiddleware
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -28,6 +28,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Session-Token"],
 )
+app.add_middleware(RequestIDMiddleware)
 
 # Routers
 app.include_router(analysis.router)
