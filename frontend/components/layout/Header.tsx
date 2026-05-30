@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { DomeLogo } from "./DomeLogo";
-import { ThemeToggle } from "./ThemeToggle";
-import { useAuth } from "@/context/AuthContext";
+import { DomeLogo, ThemeToggle, useAuth } from "@dome-layer/dome-ui";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -18,7 +16,7 @@ export function Header() {
       <header className="site-header sticky top-0 z-40">
         <div className="max-w-[1152px] mx-auto px-6 md:px-8 h-16 flex items-center justify-between">
           <Link href="/" aria-label="Home">
-            <DomeLogo width={100} />
+            <DomeLogo size="md" />
           </Link>
 
           <nav className="flex items-center gap-4">
