@@ -6,6 +6,7 @@ const config: Config = {
     "./components/**/*.{ts,tsx}",
     "./context/**/*.{ts,tsx}",
     "./hooks/**/*.{ts,tsx}",
+    "./node_modules/@dome-layer/dome-ui/dist/**/*.js",
   ],
   theme: {
     extend: {
