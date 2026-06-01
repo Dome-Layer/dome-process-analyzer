@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timezone
 
+from app.core.db import get_db
 from app.core.logging import get_logger
 from app.models.schemas import GovernanceEvent, ProcessAnalysis
 
@@ -77,16 +78,37 @@ def emit_governance_event(
         },
     )
 
-    logger.info(
-        "governance_event_emitted",
-        agent_id=event.agent_id,
-        action_type=event.action_type,
-        analysis_id=analysis.analysis_id,
-        input_hash=input_hash[:12],
-        confidence=confidence_value,
-        human_in_loop=human_in_loop,
-        governance_flags_count=len(analysis.governance_flags),
-        critical_flags_count=len(critical_flags),
-    )
+    try:
+        db = get_db()
+        payload = {
+            "agent_id": event.agent_id,
+            "action_type": event.action_type,
+            "timestamp": event.timestamp.isoformat(),
+            "input_hash": event.input_hash,
+            "input_type": event.input_type,
+            "output_summary": event.output_summary,
+            "rules_applied": event.rules_applied,
+            "rules_triggered": event.rules_triggered,
+            "confidence": event.confidence,
+            "human_in_loop": event.human_in_loop,
+            "user_id": event.user_id,
+            "workflow_run_id": event.workflow_run_id,
+            "metadata": event.metadata,
+        }
+        db.table("governance_events").insert(payload).execute()
+        logger.info(
+            "governance_event_emitted",
+            agent_id=event.agent_id,
+            action_type=event.action_type,
+            analysis_id=analysis.analysis_id,
+            input_hash=input_hash[:12],
+            confidence=confidence_value,
+            human_in_loop=human_in_loop,
+            governance_flags_count=len(analysis.governance_flags),
+            critical_flags_count=len(critical_flags),
+        )
+    except Exception as e:
+        # Governance persistence must never break the main analysis flow.
+        logger.error("governance_event_failed", error=str(e), analysis_id=analysis.analysis_id)
 
     return event
