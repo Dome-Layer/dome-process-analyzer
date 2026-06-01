@@ -12,6 +12,8 @@ anyio==4.13.0
     #   httpx
     #   starlette
     #   watchfiles
+ast-serialize==0.5.0
+    # via mypy
 certifi==2026.5.20
     # via
     #   httpcore
@@ -29,7 +31,7 @@ distro==1.9.0
     # via anthropic
 docstring-parser==0.18.0
     # via anthropic
-dome-core @ git+https://github.com/Dome-Layer/dome-core.git@2325fe489348a13624e0c8b2bf10a344add3dbce
+dome-core[anthropic] @ git+https://github.com/Dome-Layer/dome-core.git@v0.2.0
     # via -r requirements.in
 fastapi==0.115.0
     # via
@@ -54,7 +56,7 @@ httpcore==1.0.9
     # via httpx
 httptools==0.8.0
     # via uvicorn
-httpx==0.27.2
+httpx[http2]==0.27.2
     # via
     #   -r requirements.in
     #   anthropic
@@ -75,7 +77,9 @@ iniconfig==2.3.0
     # via pytest
 jiter==0.15.0
     # via anthropic
-mypy==1.11.2
+librt==0.11.0
+    # via mypy
+mypy==2.1.0
     # via -r requirements-dev.in
 mypy-extensions==1.1.0
     # via mypy
@@ -85,6 +89,8 @@ packaging==26.2
     # via
     #   deprecation
     #   pytest
+pathspec==1.1.1
+    # via mypy
 platformdirs==4.10.0
     # via
     #   python-discovery
@@ -135,7 +141,7 @@ redis==5.2.1
     # via -r requirements.in
 ruff==0.6.9
     # via -r requirements-dev.in
-sentry-sdk==2.61.0
+sentry-sdk[fastapi]==2.61.0
     # via
     #   -r requirements.in
     #   dome-core
@@ -164,7 +170,6 @@ supafunc==0.5.1
 typing-extensions==4.15.0
     # via
     #   anthropic
-    #   anyio
     #   fastapi
     #   mypy
     #   pydantic
@@ -173,7 +178,7 @@ typing-extensions==4.15.0
     #   storage3
 urllib3==2.7.0
     # via sentry-sdk
-uvicorn==0.30.6
+uvicorn[standard]==0.30.6
     # via -r requirements.in
 uvloop==0.22.1
     # via uvicorn
