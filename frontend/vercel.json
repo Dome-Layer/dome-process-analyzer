@@ -1,0 +1,3 @@
+{
+  "installCommand": "rm -rf node_modules .next/cache && npm install"
+}
