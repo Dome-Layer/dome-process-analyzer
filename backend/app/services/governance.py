@@ -9,7 +9,7 @@ from app.models.schemas import GovernanceEvent, ProcessAnalysis
 
 logger = get_logger(__name__)
 
-AGENT_ID = "dome-process-analyzer-v1"
+AGENT_ID = "process-analyzer"
 
 
 def emit_governance_event(
