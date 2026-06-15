@@ -337,3 +337,91 @@ def test_create_analysis_no_auth_header_uses_anon_bucket(mock_run):
     assert r.status_code == 201
     assert r.headers["X-RateLimit-Hourly-Limit"] == "3"
     assert r.headers["X-RateLimit-Hourly-Remaining"] == "2"
+
+
+# -- Low-confidence clarifying-question invariant -----------------------------
+
+
+def test_low_confidence_without_questions_is_reprompted(monkeypatch):
+    """A low/medium-confidence analysis with no clarifying questions must trigger
+    exactly one re-prompt that backfills them — otherwise the UI's refine flow
+    (gated on clarifying_questions) has nothing to offer the user."""
+    import asyncio
+
+    from app.models.schemas import AnalysisRequest
+    from app.services import analysis as analysis_module
+
+    low_empty = _make_fake_analysis()
+    low_empty["overall_confidence"] = "low"
+    low_empty["clarifying_questions"] = []
+
+    low_with_q = _make_fake_analysis()
+    low_with_q["overall_confidence"] = "low"
+    low_with_q["clarifying_questions"] = [
+        {
+            "id": "q1",
+            "question": "Which ERP system handles the purchase orders?",
+            "context": "PO approvals usually run through an ERP; the choice drives integrations.",
+            "affects": ["systems"],
+        }
+    ]
+
+    class _FakeProvider:
+        def __init__(self):
+            self.prompts = []
+
+        async def generate_structured(self, *, prompt, schema, system):
+            self.prompts.append(prompt)
+            return low_empty if len(self.prompts) == 1 else low_with_q
+
+    fake_provider = _FakeProvider()
+    monkeypatch.setattr(analysis_module, "_get_provider", lambda: fake_provider)
+    monkeypatch.setattr(analysis_module, "emit_governance_event", lambda *a, **k: None)
+
+    svc = analysis_module.AnalysisService()
+    req = AnalysisRequest(
+        description="A business process for testing the low-confidence re-prompt path. " * 2,
+        process_name="PO Approval",
+        domain_hint="procurement",
+    )
+    resp = asyncio.run(svc.run(req))
+
+    assert len(fake_provider.prompts) == 2, "expected exactly one re-prompt for missing questions"
+    assert resp.analysis.clarifying_questions, "clarifying questions should be backfilled"
+    assert resp.analysis.overall_confidence.value == "low"
+
+
+def test_high_confidence_without_questions_is_not_reprompted(monkeypatch):
+    """A high-confidence analysis may legitimately return no questions and must
+    NOT trigger a re-prompt."""
+    import asyncio
+
+    from app.models.schemas import AnalysisRequest
+    from app.services import analysis as analysis_module
+
+    high_empty = _make_fake_analysis()
+    high_empty["overall_confidence"] = "high"
+    high_empty["clarifying_questions"] = []
+
+    class _FakeProvider:
+        def __init__(self):
+            self.prompts = []
+
+        async def generate_structured(self, *, prompt, schema, system):
+            self.prompts.append(prompt)
+            return high_empty
+
+    fake_provider = _FakeProvider()
+    monkeypatch.setattr(analysis_module, "_get_provider", lambda: fake_provider)
+    monkeypatch.setattr(analysis_module, "emit_governance_event", lambda *a, **k: None)
+
+    svc = analysis_module.AnalysisService()
+    req = AnalysisRequest(
+        description="A detailed business process description for the high-confidence path. " * 2,
+        process_name="Test",
+        domain_hint="testing",
+    )
+    resp = asyncio.run(svc.run(req))
+
+    assert len(fake_provider.prompts) == 1, "high confidence must not trigger a re-prompt"
+    assert resp.analysis.clarifying_questions == []

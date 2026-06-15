@@ -118,17 +118,22 @@ MERMAID FLOWCHART
   Use descriptive IDs instead (e.g. "complete-node", "process-end", "finish-node").
 
 CLARIFYING QUESTIONS
-- If the description is ambiguous on points that materially affect analysis
-  quality, include up to 5 clarifying questions.
+- Include up to 5 clarifying questions on points that materially affect
+  analysis quality.
 - Prioritise questions that affect governance findings or automation feasibility.
 - Each question must include context explaining why it matters.
-- If the description is sufficiently detailed, return an empty array.
+- Return an empty array ONLY when overall_confidence is "high". When
+  overall_confidence is "low" or "medium" you MUST include at least one
+  clarifying question — the specific gaps or assumptions that kept you from
+  being fully confident.
 
 CONFIDENCE
 - Set overall_confidence to:
   * "high" — description was detailed, few inferences required
-  * "medium" — some gaps filled by inference, clarifying questions raised
-  * "low" — significant inference required, analysis is directional only
+    (clarifying_questions may be empty)
+  * "medium" — some gaps filled by inference; you MUST raise clarifying questions
+  * "low" — significant inference required, analysis is directional only;
+    you MUST raise clarifying questions
 
 METRICS
 - Compute metrics from the step data. Do not estimate independently.
