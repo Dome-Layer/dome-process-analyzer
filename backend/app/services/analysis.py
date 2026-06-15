@@ -15,6 +15,7 @@ from app.models.schemas import (
     AnalysisRequest,
     AnalysisResponse,
     AnalysisStatus,
+    ConfidenceLevel,
     ProcessAnalysis,
     RefineRequest,
     RefineResponse,
@@ -113,6 +114,20 @@ ERROR_CORRECTION_PROMPT = (
     "Return ONLY valid JSON matching the schema. No prose, no code fences."
 )
 
+# Re-prompt used when a low/medium-confidence analysis came back with no
+# clarifying questions. Such an analysis is unrefinable in the UI (the refine
+# flow is gated on clarifying_questions), so we ask the model to backfill them.
+LOW_CONFIDENCE_QUESTIONS_PROMPT = (
+    "Your previous response set overall_confidence to 'low' or 'medium' but returned an "
+    "empty clarifying_questions array. That is invalid: when confidence is not 'high' you "
+    "must surface the specific gaps or assumptions that limited your confidence as "
+    "clarifying questions.\n"
+    "Regenerate the COMPLETE JSON analysis for the same process — keep your findings and "
+    "the same overall_confidence — but include 1-5 clarifying_questions (each with id, "
+    "question, context, and affects) that, if answered, would let you raise confidence. "
+    "Return ONLY valid JSON matching the schema."
+)
+
 
 class AnalysisService:
     def __init__(self):
@@ -147,6 +162,12 @@ class AnalysisService:
                     status_code=503,
                     detail="Analysis could not be completed. Please try again.",
                 )
+
+        # Guarantee a refinable analysis: a low/medium-confidence result must
+        # carry clarifying questions (the UI's refine flow is gated on them).
+        analysis = await self._ensure_clarifying_questions(
+            analysis, user_prompt, schema, analysis_id
+        )
 
         duration_ms = int((time.time() - start_time) * 1000)
 
@@ -236,6 +257,12 @@ class AnalysisService:
         if analysis.analysis_version != next_version:
             analysis.analysis_version = next_version
 
+        # A refined analysis that is still not high-confidence should keep
+        # offering clarifying questions so the user can iterate further.
+        analysis = await self._ensure_clarifying_questions(
+            analysis, refinement_prompt, schema, analysis_id
+        )
+
         # Update cache
         cached["analysis"] = analysis
         analysis_cache.set(analysis_id, cached)
@@ -256,6 +283,40 @@ class AnalysisService:
             analysis=analysis,
             previous_version=previous_version,
         )
+
+    async def _ensure_clarifying_questions(
+        self,
+        analysis: ProcessAnalysis,
+        base_prompt: str,
+        schema: dict,
+        analysis_id: str,
+    ) -> ProcessAnalysis:
+        """Backfill clarifying questions for a non-high-confidence analysis.
+
+        A "low"/"medium" analysis with no clarifying_questions cannot be refined
+        in the UI (the refine flow is gated on questions). If the model returned
+        none, re-prompt once for a complete analysis that includes them; on any
+        failure keep the original (best-effort — never blocks the response).
+        """
+        if analysis.overall_confidence == ConfidenceLevel.high or analysis.clarifying_questions:
+            return analysis
+
+        logger.info(
+            "low_confidence_no_questions_reprompt",
+            analysis_id=analysis_id,
+            confidence=analysis.overall_confidence.value,
+        )
+        fixup_prompt = base_prompt + "\n\n" + LOW_CONFIDENCE_QUESTIONS_PROMPT
+        try:
+            raw = await self._call_llm(fixup_prompt, schema)
+        except HTTPException:
+            return analysis  # provider hiccup — keep the best-effort original
+        fixed = self._validate(raw, analysis_id)
+        if fixed is not None and fixed.clarifying_questions:
+            # Preserve the version of the analysis we're replacing.
+            fixed.analysis_version = analysis.analysis_version
+            return fixed
+        return analysis
 
     async def _call_llm(self, prompt: str, schema: dict) -> dict:
         try:
