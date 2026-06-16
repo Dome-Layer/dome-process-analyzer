@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import DOMPurify from "dompurify";
 import { Card } from "@/components/ui/Card";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
@@ -24,6 +23,9 @@ export function MermaidDiagram({ chart, className }: Props) {
         const mermaid = (await import("mermaid")).default;
         mermaid.initialize({
           startOnLoad: false,
+          // "strict" HTML-encodes any markup inside diagram labels, so mermaid's
+          // own output is XSS-safe to inject directly (see the innerHTML note below).
+          securityLevel: "strict",
           theme: "base",
           themeVariables: {
             primaryColor: "#FFFFFF",
@@ -56,14 +58,13 @@ export function MermaidDiagram({ chart, className }: Props) {
         }
 
         if (!cancelled && containerRef.current) {
-          const cleanSvg = DOMPurify.sanitize(svg, {
-            USE_PROFILES: { svg: true, svgFilters: true },
-            // Mermaid renders node labels via <foreignObject><div><p>text</p></div></foreignObject>.
-            // The SVG profile strips HTML elements, so we explicitly allow them here.
-            ADD_TAGS: ["foreignObject", "div", "span", "p", "br", "style"],
-            ADD_ATTR: ["dominant-baseline", "text-anchor", "requiredExtensions"],
-          });
-          containerRef.current.innerHTML = cleanSvg;
+          // Insert mermaid's output directly. We intentionally do NOT re-run
+          // DOMPurify here: its SVG profile strips the HTML inside mermaid's
+          // <foreignObject> node labels (the 10.9.6 markup), which blanked every
+          // label. mermaid renders at securityLevel "strict" (above) — it
+          // HTML-encodes any markup in label text — and the per-request nonce CSP
+          // (middleware.ts) blocks any un-nonced script, so this is XSS-safe.
+          containerRef.current.innerHTML = svg;
           setRendered(true);
         }
       } catch (err) {

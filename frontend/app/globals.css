@@ -118,25 +118,9 @@ body {
 .section-delay-5 { animation-delay: 750ms; }
 
 /* ─── Mermaid diagram overrides ──────────────────────────────────── */
-/* Mermaid 10.9.6 (security backport: CVE-2026-41148/41149/41159) emits each
-   diagram's CSS via the CSSOM instead of an inline <style> in the SVG markup.
-   MermaidDiagram.tsx extracts the SVG string from mermaid.render() and
-   re-inserts it (sanitized) itself, so those CSSOM rules don't travel with the
-   string — node/edge labels then render with no color and appear invisible.
-   Re-assert label colors here so rendering doesn't depend on Mermaid's injected
-   styles. (#0a0a0a matches primaryTextColor in MermaidDiagram.tsx.) */
-.mermaid-container .nodeLabel,
-.mermaid-container .edgeLabel,
-.mermaid-container .cluster span,
-.mermaid-container foreignObject {
-  color: #0a0a0a !important;
-}
 .mermaid-container .nodeLabel {
   font-family: var(--font-sans) !important;
   font-size: 13px !important;
-}
-.mermaid-container text {
-  fill: #0a0a0a;
 }
 
 @media (prefers-reduced-motion: reduce) {
