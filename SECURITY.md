@@ -39,7 +39,6 @@ This repo follows the Dome portfolio standard:
 | `SUPABASE_SERVICE_ROLE_KEY` | Backend DB writes (bypasses RLS) | **Secret — critical impact** |
 | `SUPABASE_ANON_KEY` | Backend (limited use); frontend (auth) | Public — RLS-enforced |
 | `SUPABASE_URL` | Backend + frontend | Public |
-| `REDIS_URL` | Backend rate limiter | Secret if it includes credentials |
 | `SITE_URL`, `ALLOWED_ORIGINS`, `ENVIRONMENT`, `CACHE_TTL_SECONDS` | Backend config | Public (config, not secrets) |
 | `AZURE_OPENAI_KEY`, `AZURE_OPENAI_ENDPOINT` | Backend (stub provider) | Secret when populated; not used today |
 
