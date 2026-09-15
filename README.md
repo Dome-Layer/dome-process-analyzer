@@ -82,7 +82,6 @@ cp .env.example .env.local   # set NEXT_PUBLIC_API_BASE=http://localhost:8000
 | `SUPABASE_URL` | Yes | Supabase project URL |
 | `SUPABASE_ANON_KEY` | No | Supabase anon key (magic link emails) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key for backend DB access |
-| `REDIS_URL` | No | Redis URL for rate limiter; falls back to in-memory if unset |
 | `ENVIRONMENT` | Yes | `development` \| `production` |
 | `ALLOWED_ORIGINS` | Yes | Comma-separated CORS origins |
 | `SITE_URL` | Yes | Frontend URL — used in magic link email redirects |

@@ -10,10 +10,10 @@ Two consumers share one store:
    auth-aware buckets (e.g. anonymous-IP vs authenticated-user hourly caps).
    The shared singleton is exposed via :func:`get_store`.
 
-Backed by Redis when ``REDIS_URL`` is configured (shared across instances),
-falls back to in-process memory when Redis is not available (single-instance
-only). Both stores fail open on transient I/O errors so a Redis outage cannot
-take the analysis endpoint down.
+The store is in-process memory, so limits are per replica and reset on every
+redeploy. The backend runs a single replica; a shared store was removed as
+unneeded (DOME_DECISIONS 2026-09-15). Revisit before scaling out. Checks fail
+open on unexpected errors so the limiter cannot take the analysis endpoint down.
 """
 
 import time
@@ -44,42 +44,6 @@ def get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-class _RedisStore:
-    """Sliding-window counter backed by Redis sorted sets."""
-
-    def __init__(self, redis_url: str, key_prefix: str = ""):
-        import redis as redis_lib
-
-        self._r = redis_lib.from_url(redis_url, decode_responses=True)
-        self._key_prefix = key_prefix
-
-    def check(self, key: str, limit: int, window: int) -> tuple[int, bool]:
-        now = time.time()
-        cutoff = now - window
-        full_key = f"{self._key_prefix}{key}" if self._key_prefix else key
-        try:
-            pipe = self._r.pipeline()
-            pipe.zremrangebyscore(full_key, "-inf", cutoff)
-            pipe.zadd(full_key, {str(now): now})
-            pipe.zcard(full_key)
-            pipe.expire(full_key, window + 1)
-            results = pipe.execute()
-        except Exception as e:
-            # Fail open: a Redis outage must not 500 the endpoint.
-            logger.warning("rate_limiter_redis_check_failed", key=key, error=str(e))
-            return limit, False
-
-        count = results[2]  # zcard result
-        if count > limit:
-            # Remove the entry we just added — request is rejected.
-            try:
-                self._r.zrem(full_key, str(now))
-            except Exception as e:
-                logger.warning("rate_limiter_redis_zrem_failed", key=full_key, error=str(e))
-            return 0, True
-        return max(limit - count, 0), False
-
-
 class _MemoryStore:
     """Sliding-window counter backed by in-process memory."""
 
@@ -99,35 +63,16 @@ class _MemoryStore:
             return limit - count - 1, False
 
 
-def _build_store():
-    from app.core.config import settings
-
-    if settings.redis_url:
-        try:
-            store = _RedisStore(settings.redis_url, key_prefix=settings.ratelimit_prefix)
-            store._r.ping()
-            logger.info(
-                "rate_limiter_backend",
-                backend="redis",
-                key_prefix=settings.ratelimit_prefix or "<none>",
-            )
-            return store
-        except Exception as e:
-            logger.warning("rate_limiter_redis_unavailable", error=str(e))
-    logger.info("rate_limiter_backend", backend="memory")
-    return _MemoryStore()
-
-
 # Module-level singleton, lazily initialised. Tests monkey-patch this directly
 # to reset state between cases.
-_cached_store: Optional[object] = None
+_cached_store: Optional[_MemoryStore] = None
 
 
-def get_store():
+def get_store() -> _MemoryStore:
     """Return the shared rate-limit store, initialising it on first call."""
     global _cached_store
     if _cached_store is None:
-        _cached_store = _build_store()
+        _cached_store = _MemoryStore()
     return _cached_store
 
 
