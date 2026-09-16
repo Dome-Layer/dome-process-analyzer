@@ -52,7 +52,7 @@ docker run -p 8000:8000 --env-file .env dome-process-analyzer
 
 ## Rate limiting
 
-Two layers protect `POST /api/v1/analysis` from cost-burn abuse. Both share a single sliding-window store (`app/core/limiter.py`) — Redis when `REDIS_URL` is set, in-process memory otherwise.
+Two layers protect `POST /api/v1/analysis` from cost-burn abuse. Both share a single in-process sliding-window store (`app/core/limiter.py`).
 
 | Layer | Window | Limit | Bucket |
 |-------|--------|-------|--------|
@@ -60,11 +60,11 @@ Two layers protect `POST /api/v1/analysis` from cost-burn abuse. Both share a si
 | Hourly cap, anonymous | 3600s | `ANALYSIS_HOURLY_ANON_LIMIT` (default 3) | per IP |
 | Hourly cap, authenticated | 3600s | `ANALYSIS_HOURLY_AUTH_LIMIT` (default 30) | per user |
 
-The hourly window is enforced inside the route handler so it can see the auth state; missing-header callers fall through to the anonymous bucket, but a malformed/expired bearer token raises `401` rather than silently demoting. Both limiters fail open on store I/O errors so a Redis outage cannot 500 the endpoint.
+The hourly window is enforced inside the route handler so it can see the auth state; missing-header callers fall through to the anonymous bucket, but a malformed/expired bearer token raises `401` rather than silently demoting. Both limiters fail open on unexpected store errors so the limiter cannot 500 the endpoint.
 
 Successful responses include `X-RateLimit-Limit`/`X-RateLimit-Remaining` (burst window) and `X-RateLimit-Hourly-Limit`/`X-RateLimit-Hourly-Remaining` (hourly window). 429 responses also carry `Retry-After`.
 
-**Single-replica assumption.** With the in-memory fallback, scaling Railway to N replicas multiplies the effective limit by N. Today the deployment is single-replica; revisit the limiter (Redis-backed at all times) before horizontal scaling.
+**Single-replica assumption.** Counts live in process memory, so they reset on every redeploy and scaling Railway to N replicas multiplies the effective limit by N. Today the deployment is single-replica. A Redis-backed store was removed as unneeded at that scale (DOME_DECISIONS 2026-09-15); bring back a shared store before horizontal scaling.
 
 ## Testing
 
