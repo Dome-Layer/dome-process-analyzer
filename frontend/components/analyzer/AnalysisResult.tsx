@@ -56,6 +56,7 @@ export function AnalysisResult({ analysis, analysisId, onRefine, refining }: Pro
       {/* Clarifying questions — only show if present */}
       {analysis.clarifying_questions.length > 0 && (
         <ClarifyingQuestions
+          key={analysis.analysis_version}
           questions={analysis.clarifying_questions}
           onRefine={onRefine}
           refining={refining}
