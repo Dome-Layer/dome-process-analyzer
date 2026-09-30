@@ -23,10 +23,10 @@ export function middleware(request: NextRequest) {
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval'`,
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     `connect-src 'self' https://*.ingest.de.sentry.io${apiBase ? ` ${apiBase}` : ""}`,
-    "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
+    "font-src 'self'",
     "frame-ancestors 'none'",
   ].join("; ");
 
