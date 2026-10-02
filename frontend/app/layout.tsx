@@ -51,12 +51,11 @@ const themeScript = `
 })();
 `;
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+}) {;
   return (
     <html
       lang="en"
@@ -65,7 +64,7 @@ export default async function RootLayout({
     >
       <head>
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="flex flex-col min-h-screen">
         <StagingBanner environment={process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT} />
