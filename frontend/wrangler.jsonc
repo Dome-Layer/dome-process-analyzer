@@ -19,7 +19,9 @@
     "run_worker_first": ["/*", "!/_next/static/*"]
   },
   // The backend the Worker proxies /api/* to (it was BACKEND_PROXY_URL on Vercel).
-  "vars": { "API_ORIGIN": "https://dome-process-analyzer-production.up.railway.app" },
+  // Every host of this tool sends noindex, production included: it is a sign-in app, and the
+  // public page about it is on domelayer.com (SEO audit M5, 2026-10-20).
+  "vars": { "DOME_NOINDEX": "true", "API_ORIGIN": "https://dome-process-analyzer-production.up.railway.app" },
   "observability": { "enabled": true },
   "env": {
     "staging": {
