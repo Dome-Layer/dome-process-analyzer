@@ -3,10 +3,10 @@ Sliding-window rate limiter.
 
 Two consumers share one store:
 
-1. ``RateLimitMiddleware`` — applies short burst limits per (method, path)
+1. ``RateLimitMiddleware``: applies short burst limits per (method, path)
    bucketed by client IP. Configured via ``_LIMITS`` below.
 
-2. Route handlers — call :func:`check_rate_limit` directly when they need
+2. Route handlers: call :func:`check_rate_limit` directly when they need
    auth-aware buckets (e.g. anonymous-IP vs authenticated-user hourly caps).
    The shared singleton is exposed via :func:`get_store`.
 

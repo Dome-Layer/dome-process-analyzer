@@ -19,7 +19,7 @@ def emit_governance_event(
 ) -> GovernanceEvent:
     """Emit a GovernanceEvent for an analysis run.
 
-    Logs metadata only — never logs the process description content itself.
+    Logs metadata only, never logs the process description content itself.
     """
     input_hash = hashlib.sha256(input_text.encode("utf-8")).hexdigest()
 

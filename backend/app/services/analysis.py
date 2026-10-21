@@ -9,6 +9,7 @@ from fastapi import HTTPException
 
 from app.core.cache import analysis_cache
 from app.core.config import settings
+from app.core.house_style import strip_dashes_deep
 from app.core.logging import get_logger
 from app.core.prompts import PROCESS_ANALYSIS_SYSTEM_PROMPT, REFINEMENT_PROMPT_TEMPLATE
 from app.models.schemas import (
@@ -122,8 +123,8 @@ LOW_CONFIDENCE_QUESTIONS_PROMPT = (
     "empty clarifying_questions array. That is invalid: when confidence is not 'high' you "
     "must surface the specific gaps or assumptions that limited your confidence as "
     "clarifying questions.\n"
-    "Regenerate the COMPLETE JSON analysis for the same process — keep your findings and "
-    "the same overall_confidence — but include 1-5 clarifying_questions (each with id, "
+    "Regenerate the COMPLETE JSON analysis for the same process. Keep your findings and "
+    "the same overall_confidence, but include 1-5 clarifying_questions (each with id, "
     "question, context, and affects) that, if answered, would let you raise confidence. "
     "Return ONLY valid JSON matching the schema."
 )
@@ -296,7 +297,7 @@ class AnalysisService:
         A "low"/"medium" analysis with no clarifying_questions cannot be refined
         in the UI (the refine flow is gated on questions). If the model returned
         none, re-prompt once for a complete analysis that includes them; on any
-        failure keep the original (best-effort — never blocks the response).
+        failure keep the original (best-effort, never blocks the response).
         """
         if analysis.overall_confidence == ConfidenceLevel.high or analysis.clarifying_questions:
             return analysis
@@ -310,7 +311,7 @@ class AnalysisService:
         try:
             raw = await self._call_llm(fixup_prompt, schema)
         except HTTPException:
-            return analysis  # provider hiccup — keep the best-effort original
+            return analysis  # provider hiccup; keep the best-effort original
         fixed = self._validate(raw, analysis_id)
         if fixed is not None and fixed.clarifying_questions:
             # Preserve the version of the analysis we're replacing.
@@ -329,7 +330,7 @@ class AnalysisService:
             logger.error("llm_provider_unavailable", error=str(e))
             raise HTTPException(status_code=503, detail=str(e))
         except ValueError:
-            # JSON parse failure — will be retried by caller
+            # JSON parse failure; will be retried by caller
             raise
         except NotImplementedError as e:
             raise HTTPException(status_code=503, detail=str(e))
@@ -341,6 +342,9 @@ class AnalysisService:
         Returns None on validation failure (stores error in self._last_validation_error).
         """
         self._last_validation_error = ""
+
+        # House style: no em or en dashes in anything the user reads.
+        raw = strip_dashes_deep(raw)
 
         # Inject server-controlled fields
         raw["analysis_id"] = analysis_id

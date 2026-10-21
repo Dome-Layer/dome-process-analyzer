@@ -344,7 +344,7 @@ def test_create_analysis_no_auth_header_uses_anon_bucket(mock_run):
 
 def test_low_confidence_without_questions_is_reprompted(monkeypatch):
     """A low/medium-confidence analysis with no clarifying questions must trigger
-    exactly one re-prompt that backfills them — otherwise the UI's refine flow
+    exactly one re-prompt that backfills them; otherwise the UI's refine flow
     (gated on clarifying_questions) has nothing to offer the user."""
     import asyncio
 

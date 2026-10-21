@@ -2,7 +2,7 @@ from app.providers.base import LLMProvider
 
 
 class OllamaProvider(LLMProvider):
-    """Ollama LLM provider — stub implementation.
+    """Ollama LLM provider, stub implementation.
 
     Wired into the provider factory but not yet tested.
     Will raise NotImplementedError on any call.
