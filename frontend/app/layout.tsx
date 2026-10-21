@@ -22,7 +22,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Process Analyzer — Dome",
+  title: "Process Analyzer | DOME",
   description: "Map, govern, and automate your business processes.",
   icons: {
     icon: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
 };
 
-// Runs before first paint — prevents theme flash. Reads cookie first (shared
+// Runs before first paint to prevent a theme flash. Reads cookie first (shared
 // across all *.domelayer.com subdomains), then falls back to localStorage.
 const themeScript = `
 (function() {

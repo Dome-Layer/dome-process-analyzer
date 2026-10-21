@@ -15,7 +15,7 @@ function MetricTile({ label, value }: { label: string; value: string | number })
 }
 
 function formatMinutes(mins: number | null): string {
-  if (mins === null) return "—";
+  if (mins === null) return "N/A";
   if (mins < 60) return `${mins}m`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
@@ -62,7 +62,7 @@ export function SectionMetrics({ analysis, className }: Props) {
           label="Automation"
           value={metrics.automation_coverage_percent !== null
             ? `${metrics.automation_coverage_percent.toFixed(0)}%`
-            : "—"}
+            : "N/A"}
         />
       </div>
 

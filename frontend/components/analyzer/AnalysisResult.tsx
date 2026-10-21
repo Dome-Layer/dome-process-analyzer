@@ -53,7 +53,7 @@ export function AnalysisResult({ analysis, analysisId, onRefine, refining }: Pro
         className="section-animate section-delay-4"
       />
 
-      {/* Clarifying questions — only show if present */}
+      {/* Clarifying questions: only shown if present */}
       {analysis.clarifying_questions.length > 0 && (
         <ClarifyingQuestions
           key={analysis.analysis_version}
@@ -64,7 +64,7 @@ export function AnalysisResult({ analysis, analysisId, onRefine, refining }: Pro
         />
       )}
 
-      {/* Mermaid last — heaviest visual element */}
+      {/* Mermaid last: the heaviest visual element */}
       <MermaidDiagram
         chart={analysis.mermaid_flowchart}
         className="section-animate section-delay-5"
