@@ -115,7 +115,7 @@ async function requestSSE<T>(
     try {
       return JSON.parse(trimmed) as T;
     } catch {
-      // not valid JSON — fall through
+      // not valid JSON: fall through
     }
   }
 

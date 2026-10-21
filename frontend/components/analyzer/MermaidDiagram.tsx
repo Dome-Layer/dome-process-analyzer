@@ -61,8 +61,8 @@ export function MermaidDiagram({ chart, className }: Props) {
           // Insert mermaid's output directly. We intentionally do NOT re-run
           // DOMPurify here: its SVG profile strips the HTML inside mermaid's
           // <foreignObject> node labels (the 10.9.6 markup), which blanked every
-          // label. mermaid renders at securityLevel "strict" (above) — it
-          // HTML-encodes any markup in label text — and the per-request nonce CSP
+          // label. mermaid renders at securityLevel "strict" (above), which
+          // HTML-encodes any markup in label text, and the per-request nonce CSP
           // (middleware.ts) blocks any un-nonced script, so this is XSS-safe.
           containerRef.current.innerHTML = svg;
           setRendered(true);

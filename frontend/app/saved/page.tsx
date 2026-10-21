@@ -50,7 +50,7 @@ function AnalysisRow({
           </span>
           {summary.label && (
             <span className="font-sans text-xs text-dome-text-muted truncate">
-              — {summary.process_name}
+              ({summary.process_name})
             </span>
           )}
         </div>
