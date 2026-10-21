@@ -58,13 +58,13 @@ def get_current_user_optional(request: Request) -> Optional[dict]:
         (caller treats the request as anonymous).
       * Bearer token present but invalid/expired → raises ``HTTPException(401)``
         (we do **not** silently demote stale-token requests to the anonymous
-        bucket — that produces a confusing UX where a signed-in user with an
+        bucket; that produces a confusing UX where a signed-in user with an
         expired token quietly hits the 3/hr/IP cap and cannot tell why).
       * Valid token → returns ``{"user_id", "email"}`` identical to
         :func:`get_current_user`.
 
     Do **not** swap this in for :func:`get_current_user` on routes that
-    require authentication — the missing-header branch returns ``None`` and
+    require authentication: the missing-header branch returns ``None`` and
     would silently bypass auth.
     """
     auth_header = request.headers.get("Authorization")

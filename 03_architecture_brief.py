@@ -1,4 +1,4 @@
-# Dome Process Analyzer — Architecture Brief for Claude Code
+# Dome Process Analyzer, Architecture Brief for Claude Code
 # Hand this to Claude Code as the starting context alongside 01_schema.py and 02_prompts.py
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -6,7 +6,7 @@
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 """
-Dome Process Analyzer — Backend
+Dome Process Analyzer, Backend
 
 A FastAPI backend that accepts plain-language business process descriptions,
 analyses them with Claude, and returns structured JSON including a process
@@ -43,8 +43,8 @@ backend/
 │   │   ├── __init__.py
 │   │   ├── base.py              # LLMProvider ABC
 │   │   ├── claude.py            # ClaudeProvider implementation
-│   │   ├── azure_openai.py      # AzureOpenAIProvider (stub — wired but not tested)
-│   │   └── ollama.py            # OllamaProvider (stub — wired but not tested)
+│   │   ├── azure_openai.py      # AzureOpenAIProvider (stub, wired but not tested)
+│   │   └── ollama.py            # OllamaProvider (stub, wired but not tested)
 │   └── services/
 │       ├── __init__.py
 │       ├── analysis.py          # Core analysis orchestration service
@@ -65,11 +65,11 @@ backend/
 
 """
 1. LLM ABSTRACTION (non-negotiable)
-   - All LLM calls go through LLMProvider ABC — never call anthropic SDK directly
+   - All LLM calls go through LLMProvider ABC; never call anthropic SDK directly
      in business logic.
    - Provider selected via LLM_PROVIDER env var: "claude" | "azure_openai" | "ollama"
    - ClaudeProvider is the only fully implemented provider for v1.
-   - AzureOpenAIProvider and OllamaProvider are stubbed — raise NotImplementedError
+   - AzureOpenAIProvider and OllamaProvider are stubbed; raise NotImplementedError
      with a clear message. Do not leave them unimplemented silently.
 
 2. ZERO DATA RETENTION
@@ -80,7 +80,7 @@ backend/
      governance flag IDs and severities, automation opportunity IDs, overall_confidence,
      analysis_version, created_at, label.
    - The full ProcessAnalysis JSON is stored only on save, and only if consent is true.
-   - GovernanceEvent is emitted for every analysis — logs metadata only, never content.
+   - GovernanceEvent is emitted for every analysis; logs metadata only, never content.
 
 3. ANONYMOUS USE
    - POST /api/v1/analysis does not require authentication.
@@ -129,7 +129,7 @@ GET    /api/v1/health                      → {"status": "ok"}         (200)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 """
-# LLM Provider — "claude" | "azure_openai" | "ollama"
+# LLM Provider: "claude" | "azure_openai" | "ollama"
 LLM_PROVIDER=claude
 
 # Anthropic (used when LLM_PROVIDER=claude)
@@ -194,7 +194,7 @@ AnalysisService.run(request: AnalysisRequest, user_id: str | None) -> AnalysisRe
 
 AnalysisService.refine(analysis_id, answers, session_token) -> RefineResponse:
 
-1. Retrieve from cache — 404 if not found or session_token mismatch
+1. Retrieve from cache; 404 if not found or session_token mismatch
 2. Build refinement prompt using REFINEMENT_PROMPT_TEMPLATE
 3. Call llm_provider.generate_structured(...)
 4. Validate, increment analysis_version
@@ -241,7 +241,7 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 """
-Progressive disclosure pattern to reduce perceived wait time (LLM calls ~8–15s):
+Progressive disclosure pattern to reduce perceived wait time (LLM calls ~8-15s):
 
 1. User submits description → button changes to loading state immediately
 2. After ~300ms: skeleton UI appears with four section placeholders
@@ -250,7 +250,7 @@ Progressive disclosure pattern to reduce perceived wait time (LLM calls ~8–15s
    "Mapping process steps..." → "Identifying systems..." →
    "Running governance checks..." → "Identifying automation opportunities..."
 4. On response: sections populate with a staggered fade-in (150ms between sections)
-5. Mermaid diagram renders last — it's the heaviest visual element
+5. Mermaid diagram renders last; it's the heaviest visual element
 
 Design system: Dome Design System (DOME_DESIGN_SYSTEM.md in project files)
 - Dark theme for marketing pages

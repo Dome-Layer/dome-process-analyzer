@@ -1,4 +1,4 @@
-# Dome Process Analyzer — Core Pydantic Schema
+# Dome Process Analyzer, Core Pydantic Schema
 # Carry this into Claude Code as the data model foundation.
 
 from pydantic import BaseModel, Field

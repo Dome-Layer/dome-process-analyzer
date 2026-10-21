@@ -2,7 +2,7 @@ from app.providers.base import LLMProvider
 
 
 class AzureOpenAIProvider(LLMProvider):
-    """Azure OpenAI LLM provider — stub implementation.
+    """Azure OpenAI LLM provider, stub implementation.
 
     Wired into the provider factory but not yet tested.
     Will raise NotImplementedError on any call.

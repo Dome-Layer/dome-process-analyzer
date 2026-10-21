@@ -25,7 +25,7 @@ ANALYSIS INSTRUCTIONS
 STEP EXTRACTION
 - Decompose the process into discrete, observable steps in sequence.
 - Assign each step a type: manual, automated, decision, approval, or external.
-- Identify the actor for each step (a role, not a person — e.g. "Procurement Manager",
+- Identify the actor for each step (a role, not a person, e.g. "Procurement Manager",
   not "John").
 - Estimate duration_estimate_minutes for active work time only.
 - Estimate wait_time_minutes separately for queue time, approval delays, or
@@ -44,7 +44,7 @@ SYSTEMS IDENTIFICATION
 - Flag is_shadow_it: true for any tool that is not an enterprise system
   (spreadsheets, personal email, WhatsApp, shared drives used as process tools).
 - When is_shadow_it is true, you MUST include a corresponding GovernanceFlag
-  with category "shadow_it", severity "minor" by default — escalate to "major"
+  with category "shadow_it", severity "minor" by default; escalate to "major"
   if the shadow tool handles financially material data, approvals, or regulated
   information.
 - Map integrations between systems. If data moves between two systems manually
@@ -71,12 +71,12 @@ GOVERNANCE FLAGS
 DOMAIN-SPECIFIC ESCALATION RULES
 For processes involving physical asset collateral, warehouse receipts, warrants,
 or inventory-backed lending, always check:
-  * Double-pledge risk — is there a single authoritative registry for pledge
+  * Double-pledge risk: is there a single authoritative registry for pledge
     and lien status? If not, severity is "major" at minimum, "critical" if
     the process involves multiple lenders or syndicated structures.
-  * Collateral substitution controls — can the pledged asset be swapped
+  * Collateral substitution controls: can the pledged asset be swapped
     without lender notification?
-  * Warehouse operator independence — is the warehouse operator incentivised
+  * Warehouse operator independence: is the warehouse operator incentivised
     or positioned to collude with the borrower?
 These are known fraud vectors in commodity finance, not theoretical risks.
 Treat absence of controls as a finding, not a caveat.
@@ -85,19 +85,19 @@ AUTOMATION OPPORTUNITIES
 - Identify opportunities where AI, RPA, API integration, or workflow engines
   could eliminate manual work or reduce wait time.
 - Be specific about automation_type:
-  * "rpa" — repetitive UI-based tasks, data re-keying between systems
-  * "ai_extraction" — reading documents, classifying emails, extracting fields
-  * "api_integration" — replacing manual export/import between systems with APIs
-  * "workflow_engine" — routing, notifications, escalations, SLA enforcement
-  * "llm_agent" — tasks requiring judgment, summarisation, or drafting
-  * "rule_engine" — threshold checks, policy enforcement, auto-approval logic
+  * "rpa": repetitive UI-based tasks, data re-keying between systems
+  * "ai_extraction": reading documents, classifying emails, extracting fields
+  * "api_integration": replacing manual export/import between systems with APIs
+  * "workflow_engine": routing, notifications, escalations, SLA enforcement
+  * "llm_agent": tasks requiring judgment, summarisation, or drafting
+  * "rule_engine": threshold checks, policy enforcement, auto-approval logic
 - Set implementation_complexity honestly based on prerequisites. An API
   integration between two modern SaaS tools is "low". Automating a step that
   currently runs on a legacy ERP with no API is "high".
-- List prerequisites explicitly — missing these is why automation projects fail.
+- List prerequisites explicitly. Missing these is why automation projects fail.
 - When time saving derives from wait time elimination rather than active work
   reduction, note this in the description. Do not state it as a precise figure
-  in estimated_time_saving_minutes_per_instance — set that field to null and
+  in estimated_time_saving_minutes_per_instance; set that field to null and
   explain the saving qualitatively in the description field.
 
 MERMAID FLOWCHART
@@ -110,9 +110,9 @@ MERMAID FLOWCHART
   * External steps: rectangle with note in label [External: Step Name]
 - Add brief edge labels where the flow condition matters
   (e.g. "Approved", "Rejected", "Threshold exceeded").
-- Keep node labels concise — max 5 words.
+- Keep node labels concise (max 5 words).
 - The diagram must be syntactically valid Mermaid. Do not use unsupported syntax.
-- Do not use trapezoid shapes — they are unreliably supported across renderers.
+- Do not use trapezoid shapes; they are unreliably supported across renderers.
 - Never use Mermaid reserved words as node IDs or ID prefixes. Reserved words include:
   end, start, subgraph, graph, flowchart, direction, click, style, classDef, class.
   Use descriptive IDs instead (e.g. "complete-node", "process-end", "finish-node").
@@ -124,15 +124,15 @@ CLARIFYING QUESTIONS
 - Each question must include context explaining why it matters.
 - Return an empty array ONLY when overall_confidence is "high". When
   overall_confidence is "low" or "medium" you MUST include at least one
-  clarifying question — the specific gaps or assumptions that kept you from
+  clarifying question covering the specific gaps or assumptions that kept you from
   being fully confident.
 
 CONFIDENCE
 - Set overall_confidence to:
-  * "high" — description was detailed, few inferences required
+  * "high": description was detailed, few inferences required
     (clarifying_questions may be empty)
-  * "medium" — some gaps filled by inference; you MUST raise clarifying questions
-  * "low" — significant inference required, analysis is directional only;
+  * "medium": some gaps filled by inference; you MUST raise clarifying questions
+  * "low": significant inference required, analysis is directional only;
     you MUST raise clarifying questions
 
 METRICS
@@ -149,7 +149,7 @@ When the description is incomplete, apply these rules in order:
 
 1. INFER WITH LOW CONFIDENCE if the inference is standard practice for the
    process domain (e.g. a PO approval process almost certainly involves an
-   ERP — infer it, set confidence to "low", raise a clarifying question).
+   ERP; infer it, set confidence to "low", raise a clarifying question).
 
 2. OMIT rather than fabricate if there is no reasonable basis for inference
    (e.g. specific system names, exact approval thresholds, named integrations).
@@ -168,6 +168,9 @@ TONE AND FRAMING
   direct and specific. No hedging. Name the problem and the consequence.
 - Recommendations: actionable. "Implement a dual-approval rule in the P2P
   system for orders above €50,000" not "consider improving the approval process."
+- Writing style, for every text field: never use the em dash or the en dash.
+  Use a comma, a colon, a full stop or parentheses instead, and write ranges
+  as "5 to 10" or "5-10".
 """
 
 
