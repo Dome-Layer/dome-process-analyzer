@@ -85,7 +85,7 @@ body {
 .theme-toggle:hover { background: var(--color-bg-muted); color: var(--color-text-primary); }
 .theme-toggle:focus-visible { box-shadow: 0 0 0 3px var(--color-focus-ring); outline: none; }
 
-/* ─── Focus ring — WCAG 2.1 AA ──────────────────────────────────── */
+/* ─── Focus ring (WCAG 2.1 AA) ────────────────────────────────── */
 *:focus-visible {
   outline: 2px solid rgba(0, 128, 255, 0.5);
   outline-offset: 2px;
