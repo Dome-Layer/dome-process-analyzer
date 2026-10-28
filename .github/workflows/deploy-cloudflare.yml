@@ -82,7 +82,17 @@ jobs:
           check /saved/ 308
           check /saved/smoke-check 200
           check /nope 404
-          check /api/v1/health 200
+          # The health check goes through the Worker's proxy to Railway. Staging backends are stopped by
+          # default, and Railway's edge then answers 404 with x-railway-fallback: true, which still proves
+          # the proxy reaches Railway. Production must answer 200.
+          if [ "$IS_PRODUCTION" = "true" ]; then
+            check /api/v1/health 200
+          else
+            health=$(curl -s -D - -o /dev/null "$HOST/api/v1/health" | tr -d '\r')
+            code=$(echo "$health" | head -1 | awk '{print $2}')
+            echo "/api/v1/health -> $code (want 200, or Railway's 404 while staging is stopped)"
+            if [ "$code" != "200" ] && ! { [ "$code" = "404" ] && echo "$health" | grep -qi '^x-railway-fallback: true'; }; then fail=1; fi
+          fi
           headers=$(curl -s -D - -o page.html "$HOST/" | tr -d '\r')
           nonce=$(echo "$headers" | grep -i '^content-security-policy:' | grep -oE "nonce-[A-Za-z0-9+/=]+" | cut -d- -f2-)
           if [ -z "$nonce" ]; then echo "::error::no CSP nonce on /"; fail=1; fi
