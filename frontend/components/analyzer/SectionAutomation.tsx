@@ -2,6 +2,9 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { AutomationOpportunity, AutomationPotential } from "@/lib/types";
+import { formatMinutes } from "@/lib/format";
+import { useT } from "@/lib/i18n";
+import type { Messages } from "@/lib/messages";
 
 const potentialVariant: Record<AutomationPotential, "high" | "medium" | "low"> = {
   high: "high",
@@ -16,29 +19,21 @@ const complexityVariant: Record<string, "high" | "medium" | "low"> = {
   high: "low",
 };
 
-const automationTypeLabel: Record<string, string> = {
-  rpa: "RPA",
-  ai_extraction: "AI extraction",
-  api_integration: "API integration",
-  workflow_engine: "Workflow engine",
-  llm_agent: "LLM agent",
-  rule_engine: "Rule engine",
-};
-
-function OpportunityCard({ opp }: { opp: AutomationOpportunity }) {
+function OpportunityCard({ opp, t }: { opp: AutomationOpportunity; t: Messages }) {
+  const complexity = opp.implementation_complexity as "high" | "medium" | "low";
   return (
     <div className="border border-dome-border rounded-dome p-4">
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <Badge variant={potentialVariant[opp.automation_potential]}>
           {opp.automation_potential === "not_applicable"
-            ? "N/A"
-            : `${opp.automation_potential} potential`}
+            ? t.notAvailable
+            : t.automation.potential(opp.automation_potential)}
         </Badge>
         <Badge variant="default">
-          {automationTypeLabel[opp.automation_type] ?? opp.automation_type}
+          {t.automation.type[opp.automation_type] ?? opp.automation_type}
         </Badge>
         <Badge variant={complexityVariant[opp.implementation_complexity] ?? "medium"}>
-          {opp.implementation_complexity} complexity
+          {t.automation.complexity(complexity)}
         </Badge>
       </div>
 
@@ -50,18 +45,14 @@ function OpportunityCard({ opp }: { opp: AutomationOpportunity }) {
 
       {opp.estimated_time_saving_minutes_per_instance !== null && (
         <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-accent mb-3">
-          Est. saving:{" "}
-          {opp.estimated_time_saving_minutes_per_instance < 60
-            ? `${opp.estimated_time_saving_minutes_per_instance}m`
-            : `${Math.floor(opp.estimated_time_saving_minutes_per_instance / 60)}h ${opp.estimated_time_saving_minutes_per_instance % 60}m`}{" "}
-          / instance
+          {t.automation.saving(formatMinutes(t, opp.estimated_time_saving_minutes_per_instance) ?? "")}
         </p>
       )}
 
       {opp.prerequisites.length > 0 && (
         <div className="bg-dome-bg-tertiary rounded-dome p-3">
           <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted mb-1.5">
-            Prerequisites
+            {t.automation.prerequisites}
           </p>
           <ul className="flex flex-col gap-1">
             {opp.prerequisites.map((p, i) => (
@@ -83,28 +74,29 @@ interface Props {
 }
 
 export function SectionAutomation({ opportunities, className }: Props) {
+  const t = useT();
   const high = opportunities.filter((o) => o.automation_potential === "high").length;
 
   return (
     <Card className={className}>
-      <SectionLabel>Automation opportunities</SectionLabel>
+      <SectionLabel>{t.automation.label}</SectionLabel>
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-sans text-lg font-semibold text-dome-text-primary">
-          {opportunities.length} opportunit{opportunities.length !== 1 ? "ies" : "y"} identified
+          {t.automation.identified(opportunities.length)}
         </h3>
         {high > 0 && (
-          <Badge variant="high">{high} high potential</Badge>
+          <Badge variant="high">{t.automation.highPotential(high)}</Badge>
         )}
       </div>
 
       {opportunities.length === 0 ? (
         <p className="font-sans text-sm text-dome-text-muted">
-          No automation opportunities identified.
+          {t.automation.none}
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 gap-3">
           {opportunities.map((opp) => (
-            <OpportunityCard key={opp.id} opp={opp} />
+            <OpportunityCard key={opp.id} opp={opp} t={t} />
           ))}
         </div>
       )}

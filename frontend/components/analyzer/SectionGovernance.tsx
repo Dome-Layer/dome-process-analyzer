@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/Badge";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { GovernanceFlag, GovernanceSeverity } from "@/lib/types";
 import { clsx } from "@/lib/clsx";
+import { useT } from "@/lib/i18n";
+import type { Messages } from "@/lib/messages";
 
 const severityBorderClass: Record<GovernanceSeverity, string> = {
   critical: "border-l-dome-status-critical",
@@ -10,7 +12,7 @@ const severityBorderClass: Record<GovernanceSeverity, string> = {
   minor: "border-l-dome-accent",
 };
 
-function FlagCard({ flag }: { flag: GovernanceFlag }) {
+function FlagCard({ flag, t }: { flag: GovernanceFlag; t: Messages }) {
   return (
     <div
       className={clsx(
@@ -19,8 +21,10 @@ function FlagCard({ flag }: { flag: GovernanceFlag }) {
       )}
     >
       <div className="flex flex-wrap items-center gap-2 mb-2">
-        <Badge variant={flag.severity}>{flag.severity}</Badge>
-        <Badge variant="default">{flag.category.replace(/_/g, " ")}</Badge>
+        <Badge variant={flag.severity}>{t.governance.severity[flag.severity]}</Badge>
+        <Badge variant="default">
+          {t.governance.category[flag.category] ?? flag.category.replace(/_/g, " ")}
+        </Badge>
       </div>
 
       <h4 className="font-sans text-sm font-semibold text-dome-text-primary mb-1.5">
@@ -33,7 +37,7 @@ function FlagCard({ flag }: { flag: GovernanceFlag }) {
 
       <div className="bg-dome-bg-tertiary rounded-dome p-3">
         <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted mb-1">
-          Recommendation
+          {t.governance.recommendation}
         </p>
         <p className="font-sans text-sm text-dome-text-secondary">
           {flag.recommendation}
@@ -42,7 +46,7 @@ function FlagCard({ flag }: { flag: GovernanceFlag }) {
 
       {flag.regulatory_reference && (
         <p className="font-sans text-[11px] text-dome-text-muted mt-2">
-          Ref: {flag.regulatory_reference}
+          {t.governance.reference}: {flag.regulatory_reference}
         </p>
       )}
     </div>
@@ -55,6 +59,7 @@ interface Props {
 }
 
 export function SectionGovernance({ flags, className }: Props) {
+  const t = useT();
   const critical = flags.filter((f) => f.severity === "critical").length;
   const major = flags.filter((f) => f.severity === "major").length;
 
@@ -65,29 +70,29 @@ export function SectionGovernance({ flags, className }: Props) {
 
   return (
     <Card className={className}>
-      <SectionLabel>Governance flags</SectionLabel>
+      <SectionLabel>{t.governance.label}</SectionLabel>
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-sans text-lg font-semibold text-dome-text-primary">
-          {flags.length} flag{flags.length !== 1 ? "s" : ""} raised
+          {t.governance.raised(flags.length)}
         </h3>
         <div className="flex gap-2">
           {critical > 0 && (
-            <Badge variant="critical">{critical} critical</Badge>
+            <Badge variant="critical">{t.governance.critical(critical)}</Badge>
           )}
           {major > 0 && (
-            <Badge variant="major">{major} major</Badge>
+            <Badge variant="major">{t.governance.major(major)}</Badge>
           )}
         </div>
       </div>
 
       {flags.length === 0 ? (
         <p className="font-sans text-sm text-dome-text-muted">
-          No governance issues identified.
+          {t.governance.none}
         </p>
       ) : (
         <div className="flex flex-col gap-3">
           {sorted.map((flag) => (
-            <FlagCard key={flag.id} flag={flag} />
+            <FlagCard key={flag.id} flag={flag} t={t} />
           ))}
         </div>
       )}

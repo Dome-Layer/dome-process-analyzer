@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { useT } from "@/lib/i18n";
 
 interface Props {
   chart: string;
@@ -13,6 +14,7 @@ export function MermaidDiagram({ chart, className }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [rendered, setRendered] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     let cancelled = false;
@@ -81,20 +83,20 @@ export function MermaidDiagram({ chart, className }: Props) {
 
   return (
     <Card className={className}>
-      <SectionLabel>Process flowchart</SectionLabel>
+      <SectionLabel>{t.diagram.label}</SectionLabel>
       <h3 className="font-sans text-lg font-semibold text-dome-text-primary mb-5">
-        Mermaid diagram
+        {t.diagram.title}
       </h3>
 
       {error ? (
         <div className="bg-dome-bg-tertiary rounded-dome p-4">
           <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-critical mb-1">
-            Diagram render error
+            {t.diagram.renderError}
           </p>
           <p className="font-sans text-xs text-dome-text-muted">{error}</p>
           <details className="mt-3">
             <summary className="font-sans text-[11px] text-dome-text-muted cursor-pointer">
-              Raw source
+              {t.diagram.rawSource}
             </summary>
             <pre className="mt-2 text-xs text-dome-text-muted whitespace-pre-wrap break-all font-mono">
               {chart}
@@ -105,7 +107,7 @@ export function MermaidDiagram({ chart, className }: Props) {
         <div className="flex items-center gap-2 py-8 justify-center">
           <span className="w-4 h-4 border-2 border-dome-accent border-t-transparent rounded-full animate-spin" />
           <span className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
-            Rendering diagram
+            {t.diagram.rendering}
           </span>
         </div>
       ) : null}
@@ -113,7 +115,7 @@ export function MermaidDiagram({ chart, className }: Props) {
       <div
         ref={containerRef}
         className="mermaid-container overflow-x-auto"
-        aria-label="Process flowchart diagram"
+        aria-label={t.diagram.aria}
       />
     </Card>
   );

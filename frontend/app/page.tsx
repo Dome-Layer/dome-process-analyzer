@@ -9,8 +9,10 @@ import { useAnalysis } from "@/hooks/useAnalysis";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
 import AuthGuard from "@/components/AuthGuard";
+import { useT } from "@/lib/i18n";
 
 export default function HomePage() {
+  const t = useT();
   const { analysis, analysisId, isSubmitting, isRefining, error, submit, refine, reset } =
     useAnalysis();
 
@@ -50,11 +52,10 @@ export default function HomePage() {
         <div className="mb-10">
           <SectionLabel>Process Analyzer</SectionLabel>
           <h1 className="font-sans text-3xl md:text-4xl font-bold text-dome-text-primary tracking-dome-tight leading-tight mb-3">
-            Map, govern, and automate
+            {t.page.title}
           </h1>
           <p className="font-sans text-base text-dome-text-secondary max-w-xl leading-relaxed">
-            Describe a business process in plain language. Dome returns a structured analysis with
-            process steps, systems inventory, governance flags, and automation opportunities.
+            {t.page.lead}
           </p>
         </div>
 
@@ -69,7 +70,7 @@ export default function HomePage() {
         {error && (
           <div className="bg-dome-status-critical/5 border border-dome-status-critical/20 rounded-dome p-4 mb-6">
             <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-critical mb-1">
-              Analysis error
+              {t.page.analysisError}
             </p>
             <p className="font-sans text-sm text-dome-text-secondary">{error}</p>
           </div>
@@ -88,10 +89,10 @@ export default function HomePage() {
           <div ref={resultsRef}>
             <div className="flex items-center justify-between mb-6">
               <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
-                Analysis complete
+                {t.page.analysisComplete}
               </p>
               <Button variant="ghost" onClick={reset}>
-                ← New analysis
+                {t.page.newAnalysis}
               </Button>
             </div>
 

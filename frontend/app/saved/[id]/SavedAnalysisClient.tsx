@@ -14,6 +14,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { useAuth } from "@/context/AuthContext";
 import { getAnalysis } from "@/lib/api";
 import type { ProcessAnalysis } from "@/lib/types";
+import { useT } from "@/lib/i18n";
 
 /**
  * The analysis id from the URL. Read from the path rather than useParams(): the site is a static
@@ -32,6 +33,7 @@ export default function SavedAnalysisClient() {
   const [analysis, setAnalysis] = useState<ProcessAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -41,7 +43,7 @@ export default function SavedAnalysisClient() {
 
     // The bare shell (/saved/_) has no analysis to show.
     if (!id) {
-      setError("Analysis not found.");
+      setError(t.library.notFound);
       setLoading(false);
       return;
     }
@@ -52,11 +54,11 @@ export default function SavedAnalysisClient() {
         setLoading(false);
       })
       .catch((err) => {
-        const msg = err instanceof Error ? err.message : "Failed to load analysis.";
+        const msg = err instanceof Error ? err.message : t.library.failedOne;
         setError(msg);
         setLoading(false);
       });
-  }, [id, isAuthenticated, router]);
+  }, [id, isAuthenticated, router, t]);
 
   return (
     <div className="flex-1 bg-dome-bg-primary">
@@ -64,19 +66,19 @@ export default function SavedAnalysisClient() {
         <div className="mb-8">
           <Link href="/saved">
             <Button variant="ghost" className="mb-4 -ml-2">
-              ← Saved analyses
+              {t.library.backToSaved}
             </Button>
           </Link>
 
           {analysis && (
             <>
-              <SectionLabel>Saved analysis</SectionLabel>
+              <SectionLabel>{t.library.savedAnalysis}</SectionLabel>
               <h1 className="font-sans text-3xl font-bold text-dome-text-primary tracking-dome-tight mb-1">
                 {analysis.process_name}
               </h1>
               <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
                 {analysis.process_domain}
-                {analysis.analysis_version > 1 && ` · Version ${analysis.analysis_version}`}
+                {analysis.analysis_version > 1 && ` · ${t.version(analysis.analysis_version)}`}
               </p>
             </>
           )}
@@ -86,7 +88,7 @@ export default function SavedAnalysisClient() {
           <div className="flex items-center gap-2 py-12">
             <span className="w-4 h-4 border-2 border-dome-accent border-t-transparent rounded-full animate-spin" />
             <span className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
-              Loading
+              {t.library.loading}
             </span>
           </div>
         )}
@@ -94,7 +96,7 @@ export default function SavedAnalysisClient() {
         {error && (
           <div className="bg-dome-status-critical/5 border border-dome-status-critical/20 rounded-dome p-4">
             <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-critical mb-1">
-              Error
+              {t.library.error}
             </p>
             <p className="font-sans text-sm text-dome-text-secondary">{error}</p>
           </div>

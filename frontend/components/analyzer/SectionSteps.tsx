@@ -3,14 +3,9 @@ import { Badge } from "@/components/ui/Badge";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { ProcessStep, StepType } from "@/lib/types";
 import { clsx } from "@/lib/clsx";
-
-const stepTypeLabel: Record<StepType, string> = {
-  manual: "Manual",
-  automated: "Automated",
-  decision: "Decision",
-  approval: "Approval",
-  external: "External",
-};
+import { formatMinutes } from "@/lib/format";
+import { useT } from "@/lib/i18n";
+import type { Messages } from "@/lib/messages";
 
 const stepTypeVariant: Record<StepType, "default" | "success" | "medium" | "low"> = {
   manual: "medium",
@@ -20,17 +15,9 @@ const stepTypeVariant: Record<StepType, "default" | "success" | "medium" | "low"
   external: "low",
 };
 
-function formatMinutes(mins: number | null): string | null {
-  if (mins === null) return null;
-  if (mins < 60) return `${mins}m`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
-
-function StepRow({ step, index }: { step: ProcessStep; index: number }) {
-  const active = formatMinutes(step.duration_estimate_minutes);
-  const wait = formatMinutes(step.wait_time_minutes);
+function StepRow({ step, index, t }: { step: ProcessStep; index: number; t: Messages }) {
+  const active = formatMinutes(t, step.duration_estimate_minutes);
+  const wait = formatMinutes(t, step.wait_time_minutes);
 
   return (
     <div className="flex gap-4 group">
@@ -58,13 +45,13 @@ function StepRow({ step, index }: { step: ProcessStep; index: number }) {
             {step.name}
           </span>
           <Badge variant={stepTypeVariant[step.step_type]}>
-            {stepTypeLabel[step.step_type]}
+            {t.steps.type[step.step_type]}
           </Badge>
           {step.is_bottleneck && (
-            <Badge variant="critical">Bottleneck</Badge>
+            <Badge variant="critical">{t.steps.bottleneck}</Badge>
           )}
           {step.confidence === "low" && (
-            <Badge variant="low">Inferred</Badge>
+            <Badge variant="low">{t.steps.inferred}</Badge>
           )}
         </div>
 
@@ -74,21 +61,21 @@ function StepRow({ step, index }: { step: ProcessStep; index: number }) {
 
         <div className="flex flex-wrap gap-3 text-[11px]">
           <span className="font-sans uppercase tracking-dome text-dome-text-muted">
-            Actor: <span className="text-dome-text-secondary">{step.actor}</span>
+            {t.steps.actor}: <span className="text-dome-text-secondary">{step.actor}</span>
           </span>
           {active && (
             <span className="font-sans uppercase tracking-dome text-dome-text-muted">
-              Active: <span className="text-dome-text-secondary">{active}</span>
+              {t.steps.active}: <span className="text-dome-text-secondary">{active}</span>
             </span>
           )}
           {wait && (
             <span className="font-sans uppercase tracking-dome text-dome-text-muted">
-              Wait: <span className="text-dome-status-major">{wait}</span>
+              {t.steps.wait}: <span className="text-dome-status-major">{wait}</span>
             </span>
           )}
           {step.systems_involved.length > 0 && (
             <span className="font-sans uppercase tracking-dome text-dome-text-muted">
-              Systems:{" "}
+              {t.steps.systems}:{" "}
               <span className="text-dome-text-secondary">
                 {step.systems_involved.join(", ")}
               </span>
@@ -106,15 +93,16 @@ interface Props {
 }
 
 export function SectionSteps({ steps, className }: Props) {
+  const t = useT();
   return (
     <Card className={className}>
-      <SectionLabel>Process steps</SectionLabel>
+      <SectionLabel>{t.steps.label}</SectionLabel>
       <h3 className="font-sans text-lg font-semibold text-dome-text-primary mb-5">
-        {steps.length} steps mapped
+        {t.steps.mapped(steps.length)}
       </h3>
       <div>
         {steps.map((step, i) => (
-          <StepRow key={step.id} step={step} index={i} />
+          <StepRow key={step.id} step={step} index={i} t={t} />
         ))}
       </div>
     </Card>

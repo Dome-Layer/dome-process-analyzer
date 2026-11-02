@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
 import { saveAnalysis } from "@/lib/api";
 import { AuthModal } from "./AuthModal";
+import { useT } from "@/lib/i18n";
 
 interface SaveButtonProps {
   analysisId: string;
@@ -13,6 +14,7 @@ interface SaveButtonProps {
 
 export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
   const { isAuthenticated, signOut } = useAuth();
+  const t = useT();
   const [authOpen, setAuthOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -24,7 +26,7 @@ export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
     return (
       <>
         <Button variant="secondary" onClick={() => setAuthOpen(true)}>
-          Save analysis
+          {t.save.save}
         </Button>
         {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
       </>
@@ -34,7 +36,7 @@ export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
   if (saved) {
     return (
       <span className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-success">
-        Saved
+        {t.save.saved}
       </span>
     );
   }
@@ -42,7 +44,7 @@ export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
   if (!showForm) {
     return (
       <Button variant="secondary" onClick={() => setShowForm(true)}>
-        Save analysis
+        {t.save.save}
       </Button>
     );
   }
@@ -62,7 +64,7 @@ export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
         setAuthOpen(true);
         return;
       }
-      const message = err instanceof Error ? err.message : "Save failed.";
+      const message = err instanceof Error ? err.message : t.save.failed;
       setError(message);
     } finally {
       setSaving(false);
@@ -72,14 +74,13 @@ export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
   return (
     <div className="flex flex-col gap-3 items-end">
       <p className="font-sans text-xs text-dome-text-muted max-w-xs text-right">
-        By saving, you consent to storing the full analysis output associated with your account.
-        The original process description is never stored.
+        {t.save.consent}
       </p>
       <input
         type="text"
         value={label}
         onChange={(e) => setLabel(e.target.value)}
-        placeholder="Label (optional)"
+        placeholder={t.save.labelPlaceholder}
         className="w-full max-w-xs bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-2 font-sans text-sm text-dome-text-primary placeholder:text-dome-text-muted focus:border-dome-accent focus:outline-none focus:ring-2 focus:ring-dome-accent/15 transition-colors"
       />
       {error && (
@@ -91,10 +92,10 @@ export function SaveButton({ analysisId, onSaved }: SaveButtonProps) {
           onClick={() => setShowForm(false)}
           disabled={saving}
         >
-          Cancel
+          {t.save.cancel}
         </Button>
         <Button onClick={handleSave} loading={saving}>
-          Confirm save
+          {t.save.confirm}
         </Button>
       </div>
     </div>

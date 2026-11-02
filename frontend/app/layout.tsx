@@ -4,7 +4,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { StagingBanner } from "@dome-layer/dome-ui";
-import { THEME_INIT_SCRIPT } from "@dome-layer/dome-ui/utils";
+import { LOCALE_INIT_SCRIPT, THEME_INIT_SCRIPT } from "@dome-layer/dome-ui/utils";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
@@ -51,6 +51,8 @@ export default function RootLayout({
         {/* Sets the theme before first paint, so there is no flash; the rule lives in dome-ui. */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* Sets <html lang> to the visitor's language before React (dome-ui's language rule). */}
+        <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
       </head>
       <body className="flex flex-col min-h-screen">
         <StagingBanner environment={process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT} />

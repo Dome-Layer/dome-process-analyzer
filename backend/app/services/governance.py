@@ -16,10 +16,12 @@ def emit_governance_event(
     analysis: ProcessAnalysis,
     input_text: str,
     user_id: str | None = None,
+    output_language: str = "en",
 ) -> GovernanceEvent:
     """Emit a GovernanceEvent for an analysis run.
 
-    Logs metadata only, never logs the process description content itself.
+    Logs metadata only, never logs the process description content itself. The output
+    language is recorded so an auditor knows which language the person read (roadmap row 6).
     """
     input_hash = hashlib.sha256(input_text.encode("utf-8")).hexdigest()
 
@@ -75,6 +77,7 @@ def emit_governance_event(
             "process_domain": analysis.process_domain,
             "analysis_version": analysis.analysis_version,
             "overall_confidence": analysis.overall_confidence.value,
+            "output_language": output_language,
         },
     )
 

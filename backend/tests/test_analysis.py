@@ -425,3 +425,127 @@ def test_high_confidence_without_questions_is_not_reprompted(monkeypatch):
 
     assert len(fake_provider.prompts) == 1, "high confidence must not trigger a re-prompt"
     assert resp.analysis.clarifying_questions == []
+
+
+# -- Output language (roadmap row 6) -----------------------------------------
+
+
+def _language_harness(monkeypatch):
+    """A service whose provider records prompts and whose governance emitter records calls."""
+    from app.services import analysis as analysis_module
+
+    result = _make_fake_analysis()
+    result["overall_confidence"] = "high"
+    result["clarifying_questions"] = []
+
+    class _FakeProvider:
+        def __init__(self):
+            self.prompts = []
+
+        async def generate_structured(self, *, prompt, schema, system):
+            self.prompts.append(prompt)
+            return dict(result)
+
+    provider = _FakeProvider()
+    events = []
+    monkeypatch.setattr(analysis_module, "_get_provider", lambda: provider)
+    monkeypatch.setattr(
+        analysis_module, "emit_governance_event", lambda *a, **k: events.append((a, k))
+    )
+    return analysis_module.AnalysisService(), provider, events
+
+
+def test_english_request_sends_the_prompt_unchanged(monkeypatch):
+    import asyncio
+
+    from app.models.schemas import AnalysisRequest
+
+    svc, provider, events = _language_harness(monkeypatch)
+    req = AnalysisRequest(description="An English process description for the default path. " * 2)
+    assert req.output_language == "en"
+    asyncio.run(svc.run(req))
+    assert "OUTPUT LANGUAGE" not in provider.prompts[0]
+    assert events[0][1]["output_language"] == "en"
+
+
+def test_other_language_asks_for_prose_in_it_and_keeps_keys_english(monkeypatch):
+    import asyncio
+
+    from app.models.schemas import AnalysisRequest
+
+    svc, provider, events = _language_harness(monkeypatch)
+    req = AnalysisRequest(
+        description="Eine Beschreibung des Rechnungsprozesses für den deutschen Pfad. " * 2,
+        output_language="de",
+    )
+    asyncio.run(svc.run(req))
+    prompt = provider.prompts[0]
+    assert "OUTPUT LANGUAGE: write every human-readable text value in German" in prompt
+    assert "every JSON key, every enum value" in prompt
+    assert events[0][1]["output_language"] == "de"
+
+
+def test_refine_keeps_the_language_of_the_analysis(monkeypatch):
+    import asyncio
+
+    from app.core.cache import analysis_cache
+    from app.models.schemas import AnalysisRequest, ClarificationAnswer, RefineRequest
+
+    svc, provider, events = _language_harness(monkeypatch)
+    resp = asyncio.run(
+        svc.run(
+            AnalysisRequest(
+                description="Una descrizione del processo di approvazione degli ordini. " * 2,
+                output_language="it",
+            )
+        )
+    )
+    answers = [ClarificationAnswer(question_id="q1", answer="SAP")]
+    asyncio.run(svc.refine(resp.analysis_id, RefineRequest(answers=answers), resp.session_token))
+    assert "in Italian" in provider.prompts[-1]
+    assert events[-1][1]["output_language"] == "it"
+
+    # A refinement may name another language explicitly.
+    asyncio.run(
+        svc.refine(
+            resp.analysis_id,
+            RefineRequest(answers=answers, output_language="nl"),
+            resp.session_token,
+        )
+    )
+    assert "in Dutch" in provider.prompts[-1]
+    assert analysis_cache.get(resp.analysis_id)["output_language"] == "nl"
+
+
+def test_unsupported_output_language_is_rejected():
+    response = client.post(
+        "/api/v1/analysis",
+        json={"description": "x" * 60, "output_language": "fr"},
+    )
+    assert response.status_code == 422
+
+
+def test_governance_event_records_the_output_language(monkeypatch):
+    from app.services import governance
+
+    inserted = {}
+
+    class _Table:
+        def insert(self, payload):
+            inserted.update(payload)
+            return self
+
+        def execute(self):
+            return None
+
+    class _Db:
+        def table(self, name):
+            return _Table()
+
+    monkeypatch.setattr(governance, "get_db", lambda: _Db())
+    analysis = ProcessAnalysis.model_validate(
+        {**_make_fake_analysis(), "analysis_id": "a1", "created_at": "2026-11-02T12:00:00Z"}
+    )
+    event = governance.emit_governance_event(analysis, "text", None, output_language="it")
+    assert event.metadata["output_language"] == "it"
+    assert inserted["metadata"]["output_language"] == "it"

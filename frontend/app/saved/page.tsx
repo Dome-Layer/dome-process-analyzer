@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/context/AuthContext";
 import { listAnalyses, deleteAnalysis } from "@/lib/api";
 import type { AnalysisSummary } from "@/lib/types";
+import { useIntlLocale, useT } from "@/lib/i18n";
 
 function AnalysisRow({
   summary,
@@ -19,6 +20,8 @@ function AnalysisRow({
 }) {
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const t = useT();
+  const intlLocale = useIntlLocale();
 
   async function handleDelete() {
     if (!confirmDelete) {
@@ -35,7 +38,7 @@ function AnalysisRow({
     }
   }
 
-  const savedAt = new Date(summary.saved_at).toLocaleDateString("en-GB", {
+  const savedAt = new Date(summary.saved_at).toLocaleDateString(intlLocale, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -57,12 +60,12 @@ function AnalysisRow({
         <div className="flex flex-wrap gap-2">
           <span className="font-sans text-[11px] text-dome-text-muted">{summary.process_domain}</span>
           <span className="font-sans text-[11px] text-dome-text-muted">·</span>
-          <span className="font-sans text-[11px] text-dome-text-muted">{summary.total_steps} steps</span>
+          <span className="font-sans text-[11px] text-dome-text-muted">{t.library.steps(summary.total_steps)}</span>
           {summary.governance_flags_critical > 0 && (
             <>
               <span className="font-sans text-[11px] text-dome-text-muted">·</span>
               <span className="font-sans text-[11px] text-dome-status-critical">
-                {summary.governance_flags_critical} critical
+                {t.library.critical(summary.governance_flags_critical)}
               </span>
             </>
           )}
@@ -73,10 +76,11 @@ function AnalysisRow({
 
       <div className="flex items-center gap-2 flex-shrink-0">
         <Badge variant={summary.overall_confidence as "high" | "medium" | "low"}>
-          {summary.overall_confidence}
+          {t.library.confidence[summary.overall_confidence as "high" | "medium" | "low"] ??
+            summary.overall_confidence}
         </Badge>
         <Link href={`/saved/${summary.analysis_id}`}>
-          <Button variant="secondary">View</Button>
+          <Button variant="secondary">{t.library.view}</Button>
         </Link>
         <Button
           variant={confirmDelete ? "primary" : "ghost"}
@@ -84,14 +88,14 @@ function AnalysisRow({
           loading={deleting}
           className={confirmDelete ? "text-xs" : ""}
         >
-          {confirmDelete ? "Confirm delete" : "Delete"}
+          {confirmDelete ? t.library.confirmDelete : t.library.delete}
         </Button>
         {confirmDelete && (
           <Button
             variant="ghost"
             onClick={() => setConfirmDelete(false)}
           >
-            Cancel
+            {t.library.cancel}
           </Button>
         )}
       </div>
@@ -104,6 +108,7 @@ export default function SavedPage() {
   const [analyses, setAnalyses] = useState<AnalysisSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -117,15 +122,15 @@ export default function SavedPage() {
         setLoading(false);
       })
       .catch((err) => {
-        const msg = err instanceof Error ? err.message : "Failed to load analyses.";
+        const msg = err instanceof Error ? err.message : t.library.failedList;
         if (err.status === 503 || msg.toLowerCase().includes("503")) {
-          setError("The database is currently paused. Saved analyses are unavailable.");
+          setError(t.library.paused);
         } else {
           setError(msg);
         }
         setLoading(false);
       });
-  }, [isAuthenticated]);
+  }, [isAuthenticated, t]);
 
   function handleDelete(id: string) {
     setAnalyses((prev) => prev.filter((a) => a.analysis_id !== id));
@@ -135,19 +140,19 @@ export default function SavedPage() {
     <div className="flex-1 bg-dome-bg-primary">
       <main className="max-w-[1152px] mx-auto px-6 md:px-8 py-12 md:py-16">
         <div className="mb-8">
-          <SectionLabel>Library</SectionLabel>
+          <SectionLabel>{t.library.label}</SectionLabel>
           <h1 className="font-sans text-3xl font-bold text-dome-text-primary tracking-dome-tight mb-2">
-            Saved analyses
+            {t.library.title}
           </h1>
         </div>
 
         {!isAuthenticated && (
           <Card>
             <p className="font-sans text-sm text-dome-text-muted mb-4">
-              Sign in to view and manage your saved analyses.
+              {t.library.signInPrompt}
             </p>
             <Link href="/">
-              <Button variant="secondary">← Go to analyzer</Button>
+              <Button variant="secondary">{t.library.back}</Button>
             </Link>
           </Card>
         )}
@@ -156,7 +161,7 @@ export default function SavedPage() {
           <div className="flex items-center gap-2 py-12">
             <span className="w-4 h-4 border-2 border-dome-accent border-t-transparent rounded-full animate-spin" />
             <span className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
-              Loading
+              {t.library.loading}
             </span>
           </div>
         )}
@@ -164,7 +169,7 @@ export default function SavedPage() {
         {isAuthenticated && error && (
           <div className="bg-dome-status-critical/5 border border-dome-status-critical/20 rounded-dome p-4">
             <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-critical mb-1">
-              Error
+              {t.library.error}
             </p>
             <p className="font-sans text-sm text-dome-text-secondary">{error}</p>
           </div>
@@ -175,17 +180,17 @@ export default function SavedPage() {
             {analyses.length === 0 ? (
               <Card>
                 <p className="font-sans text-sm text-dome-text-muted mb-4">
-                  No analyses saved yet. Run an analysis and click &ldquo;Save analysis&rdquo; to store it here.
+                  {t.library.empty}
                 </p>
                 <Link href="/">
-                  <Button variant="secondary">← Go to analyzer</Button>
+                  <Button variant="secondary">{t.library.back}</Button>
                 </Link>
               </Card>
             ) : (
               <Card className="p-0">
                 <div className="px-6 py-4 border-b border-dome-border">
                   <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-muted">
-                    {analyses.length} saved
+                    {t.library.count(analyses.length)}
                   </p>
                 </div>
                 {analyses.map((a) => (

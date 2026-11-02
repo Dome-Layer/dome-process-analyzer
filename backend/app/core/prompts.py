@@ -174,6 +174,30 @@ TONE AND FRAMING
 """
 
 
+# Language names as the model should read them, for the output-language instruction.
+OUTPUT_LANGUAGE_NAMES = {"it": "Italian", "nl": "Dutch", "de": "German"}
+
+
+def output_language_instruction(language: str) -> str:
+    """The instruction that makes generated prose follow the interface language (roadmap row 6).
+
+    Empty for English, so English requests send exactly the prompt they always did.
+    """
+    name = OUTPUT_LANGUAGE_NAMES.get(language)
+    if name is None:
+        return ""
+    return (
+        f"OUTPUT LANGUAGE: write every human-readable text value in {name}: the summary, step "
+        "names and descriptions, actor roles, governance flag titles, descriptions and "
+        "recommendations, automation descriptions and prerequisites, clarifying questions and "
+        "their context, and the Mermaid node and edge labels. Keep these exactly as specified, "
+        "in English: every JSON key, every enum value (step type, severity, category, "
+        "automation_type, implementation_complexity, confidence levels, system_type, "
+        "integration_type), every step and system ID, and the Mermaid keywords. Keep product "
+        "and system names (SAP, Coupa, Excel) and regulation names as they are."
+    )
+
+
 REFINEMENT_PROMPT_TEMPLATE = """
 You previously analysed the following process description:
 
