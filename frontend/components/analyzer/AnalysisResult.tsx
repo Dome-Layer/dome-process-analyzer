@@ -9,6 +9,7 @@ import { SectionAutomation } from "./SectionAutomation";
 import { MermaidDiagram } from "./MermaidDiagram";
 import { ClarifyingQuestions } from "./ClarifyingQuestions";
 import { SaveButton } from "@/components/auth/SaveButton";
+import { useT } from "@/lib/i18n";
 
 interface Props {
   analysis: ProcessAnalysis;
@@ -18,12 +19,13 @@ interface Props {
 }
 
 export function AnalysisResult({ analysis, analysisId, onRefine, refining }: Props) {
+  const t = useT();
   return (
     <div className="flex flex-col gap-6">
       {/* Version badge if refined */}
       {analysis.analysis_version > 1 && (
         <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-accent">
-          Version {analysis.analysis_version}
+          {t.version(analysis.analysis_version)}
         </p>
       )}
 

@@ -1,18 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const MESSAGES = [
-  "Mapping process steps",
-  "Identifying systems",
-  "Running governance checks",
-  "Identifying automation opportunities",
-  "Finalising analysis",
-];
+import { useT } from "@/lib/i18n";
 
 const INTERVAL_MS = 2500;
 
 export function StatusCycler() {
+  const MESSAGES = useT().status;
   const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
@@ -20,7 +14,8 @@ export function StatusCycler() {
     const timer = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
-        setIndex((i) => (i + 1) % MESSAGES.length);
+        // Every language has the same five messages (the catalogue's type guarantees it).
+        setIndex((i) => (i + 1) % 5);
         setVisible(true);
       }, 300);
     }, INTERVAL_MS);

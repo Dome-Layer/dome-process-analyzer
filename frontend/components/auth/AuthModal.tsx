@@ -4,12 +4,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { requestMagicLink } from "@/lib/api";
+import { useT } from "@/lib/i18n";
 
 interface AuthModalProps {
   onClose: () => void;
 }
 
 export function AuthModal({ onClose }: AuthModalProps) {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -23,7 +25,7 @@ export function AuthModal({ onClose }: AuthModalProps) {
       await requestMagicLink({ email });
       setSent(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to send link.";
+      const message = err instanceof Error ? err.message : t.auth.failed;
       setError(message);
     } finally {
       setLoading(false);
@@ -38,12 +40,12 @@ export function AuthModal({ onClose }: AuthModalProps) {
       <div className="bg-dome-bg-secondary border border-dome-border rounded-dome-card p-8 w-full max-w-md mx-4 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
         {!sent ? (
           <>
-            <SectionLabel>Sign in</SectionLabel>
+            <SectionLabel>{t.auth.label}</SectionLabel>
             <h2 className="font-sans text-xl font-semibold text-dome-text-primary mb-2">
-              Access your analyses
+              {t.auth.title}
             </h2>
             <p className="font-sans text-sm text-dome-text-muted mb-6">
-              Enter your email and we&apos;ll send a sign-in link. No password required.
+              {t.auth.lead}
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -52,7 +54,7 @@ export function AuthModal({ onClose }: AuthModalProps) {
                   htmlFor="email"
                   className="block font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-text-secondary mb-2"
                 >
-                  Email address
+                  {t.auth.email}
                 </label>
                 <input
                   id="email"
@@ -71,25 +73,27 @@ export function AuthModal({ onClose }: AuthModalProps) {
 
               <div className="flex gap-3 pt-2">
                 <Button type="submit" loading={loading} className="flex-1">
-                  Send link
+                  {t.auth.send}
                 </Button>
                 <Button type="button" variant="secondary" onClick={onClose}>
-                  Cancel
+                  {t.auth.cancel}
                 </Button>
               </div>
             </form>
           </>
         ) : (
           <div className="text-center py-4">
-            <SectionLabel>Link sent</SectionLabel>
+            <SectionLabel>{t.auth.sentLabel}</SectionLabel>
             <h2 className="font-sans text-xl font-semibold text-dome-text-primary mb-2">
-              Check your email
+              {t.auth.sentTitle}
             </h2>
             <p className="font-sans text-sm text-dome-text-muted mb-6">
-              A sign-in link has been sent to <strong>{email}</strong>. It expires in 60 minutes.
+              {t.auth.sentBefore}
+              <strong>{email}</strong>
+              {t.auth.sentAfter}
             </p>
             <Button variant="secondary" onClick={onClose} className="w-full">
-              Close
+              {t.auth.close}
             </Button>
           </div>
         )}

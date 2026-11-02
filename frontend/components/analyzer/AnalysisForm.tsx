@@ -2,22 +2,20 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { SectionLabel } from "@/components/ui/SectionLabel";
+import { useIntlLocale, useT } from "@/lib/i18n";
 
 interface AnalysisFormProps {
   onSubmit: (description: string, processName?: string, domainHint?: string) => void;
   loading: boolean;
 }
 
-const PLACEHOLDER = `Describe your business process in plain language. Include who does what, which systems are used, and any approval steps.
-
-Example: "Our supplier invoice process starts when the AP team receives an invoice by email. They manually check it against the purchase order in SAP, then route it to the budget owner for approval via email. If approved, they re-enter the payment details into SAP and schedule payment. If the amount exceeds €50,000 the CFO must also approve, but we don't have a formal escalation rule in the system..."`;
-
 export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
   const [description, setDescription] = useState("");
   const [processName, setProcessName] = useState("");
   const [domainHint, setDomainHint] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const t = useT();
+  const intlLocale = useIntlLocale();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -42,26 +40,26 @@ export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div>
         <label htmlFor="description" className={labelBase}>
-          Process description
+          {t.form.description}
         </label>
         <textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder={PLACEHOLDER}
+          placeholder={t.form.placeholder}
           rows={10}
           className={`${inputBase} leading-relaxed resize-y`}
         />
         <div className="flex justify-between mt-1.5">
           {tooShort ? (
             <p className="font-sans text-[11px] text-dome-status-critical">
-              Minimum 50 characters ({50 - charCount} more needed)
+              {t.form.minChars(50 - charCount)}
             </p>
           ) : (
             <span />
           )}
           <p className="font-sans text-[11px] text-dome-text-muted">
-            {charCount.toLocaleString()} / 10,000
+            {charCount.toLocaleString(intlLocale)} / {(10000).toLocaleString(intlLocale)}
           </p>
         </div>
       </div>
@@ -71,35 +69,35 @@ export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
         onClick={() => setShowAdvanced((v) => !v)}
         className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-accent text-left hover:text-dome-accent-hover transition-colors"
       >
-        {showAdvanced ? "− Hide options" : "+ Optional fields"}
+        {showAdvanced ? t.form.hideOptions : t.form.showOptions}
       </button>
 
       {showAdvanced && (
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label htmlFor="processName" className={labelBase}>
-              Process name
+              {t.form.processName}
             </label>
             <input
               id="processName"
               type="text"
               value={processName}
               onChange={(e) => setProcessName(e.target.value)}
-              placeholder="e.g. Supplier Invoice Approval"
+              placeholder={t.form.processNamePlaceholder}
               maxLength={120}
               className={inputBase}
             />
           </div>
           <div>
             <label htmlFor="domainHint" className={labelBase}>
-              Domain hint
+              {t.form.domainHint}
             </label>
             <input
               id="domainHint"
               type="text"
               value={domainHint}
               onChange={(e) => setDomainHint(e.target.value)}
-              placeholder="e.g. Procure-to-Pay, Commodity Finance"
+              placeholder={t.form.domainHintPlaceholder}
               className={inputBase}
             />
           </div>
@@ -108,14 +106,14 @@ export function AnalysisForm({ onSubmit, loading }: AnalysisFormProps) {
 
       <div className="flex items-center justify-between pt-2">
         <p className="font-sans text-xs text-dome-text-muted max-w-sm">
-          The process description is analysed and then discarded. It is never stored without your explicit consent.
+          {t.form.privacy}
         </p>
         <Button
           type="submit"
           loading={loading}
           disabled={charCount < 50 || charCount > 10000}
         >
-          Analyse process
+          {t.form.submit}
         </Button>
       </div>
     </form>

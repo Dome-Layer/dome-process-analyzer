@@ -2,6 +2,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { ProcessAnalysis } from "@/lib/types";
+import { formatMinutes } from "@/lib/format";
+import { useIntlLocale, useT } from "@/lib/i18n";
 
 function MetricTile({ label, value }: { label: string; value: string | number }) {
   return (
@@ -14,14 +16,6 @@ function MetricTile({ label, value }: { label: string; value: string | number })
   );
 }
 
-function formatMinutes(mins: number | null): string {
-  if (mins === null) return "N/A";
-  if (mins < 60) return `${mins}m`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
-
 interface Props {
   analysis: ProcessAnalysis;
   className?: string;
@@ -31,10 +25,13 @@ export function SectionMetrics({ analysis, className }: Props) {
   const { metrics, overall_confidence, process_name, process_domain, description_summary } = analysis;
 
   const confidenceVariant = overall_confidence as "high" | "medium" | "low";
+  const t = useT();
+  const intlLocale = useIntlLocale();
+  const duration = (mins: number | null) => formatMinutes(t, mins) ?? t.notAvailable;
 
   return (
     <Card className={className}>
-      <SectionLabel>Analysis summary</SectionLabel>
+      <SectionLabel>{t.metrics.label}</SectionLabel>
 
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
@@ -46,7 +43,7 @@ export function SectionMetrics({ analysis, className }: Props) {
           </p>
         </div>
         <Badge variant={confidenceVariant}>
-          {overall_confidence} confidence
+          {t.metrics.confidence(confidenceVariant)}
         </Badge>
       </div>
 
@@ -55,14 +52,16 @@ export function SectionMetrics({ analysis, className }: Props) {
       </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <MetricTile label="Total steps" value={metrics.total_steps} />
-        <MetricTile label="Manual steps" value={metrics.manual_steps} />
-        <MetricTile label="Systems" value={metrics.systems_count} />
+        <MetricTile label={t.metrics.totalSteps} value={metrics.total_steps} />
+        <MetricTile label={t.metrics.manualSteps} value={metrics.manual_steps} />
+        <MetricTile label={t.metrics.systems} value={metrics.systems_count} />
         <MetricTile
-          label="Automation"
+          label={t.metrics.automation}
           value={metrics.automation_coverage_percent !== null
-            ? `${metrics.automation_coverage_percent.toFixed(0)}%`
-            : "N/A"}
+            ? new Intl.NumberFormat(intlLocale, { style: "percent", maximumFractionDigits: 0 }).format(
+                metrics.automation_coverage_percent / 100
+              )
+            : t.notAvailable}
         />
       </div>
 
@@ -71,20 +70,20 @@ export function SectionMetrics({ analysis, className }: Props) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
           {metrics.estimated_total_duration_minutes !== null && (
             <MetricTile
-              label="Total duration"
-              value={formatMinutes(metrics.estimated_total_duration_minutes)}
+              label={t.metrics.totalDuration}
+              value={duration(metrics.estimated_total_duration_minutes)}
             />
           )}
           {metrics.estimated_active_work_minutes !== null && (
             <MetricTile
-              label="Active work"
-              value={formatMinutes(metrics.estimated_active_work_minutes)}
+              label={t.metrics.activeWork}
+              value={duration(metrics.estimated_active_work_minutes)}
             />
           )}
           {metrics.estimated_wait_time_minutes !== null && (
             <MetricTile
-              label="Wait time"
-              value={formatMinutes(metrics.estimated_wait_time_minutes)}
+              label={t.metrics.waitTime}
+              value={duration(metrics.estimated_wait_time_minutes)}
             />
           )}
         </div>
@@ -94,7 +93,7 @@ export function SectionMetrics({ analysis, className }: Props) {
         <div className="mt-4 flex items-center gap-2 px-3 py-2 bg-dome-status-major/5 border border-dome-status-major/20 rounded-dome">
           <span className="w-1.5 h-1.5 rounded-full bg-dome-status-major flex-shrink-0" />
           <p className="font-sans text-[11px] font-semibold uppercase tracking-dome text-dome-status-major">
-            Shadow IT detected
+            {t.metrics.shadowIt}
           </p>
         </div>
       )}

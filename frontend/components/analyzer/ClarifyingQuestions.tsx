@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { ClarifyingQuestion, ClarificationAnswer } from "@/lib/types";
+import { useT } from "@/lib/i18n";
 
 interface Props {
   questions: ClarifyingQuestion[];
@@ -23,6 +24,7 @@ const affectsVariant: Record<string, "default" | "critical" | "major" | "minor">
 };
 
 export function ClarifyingQuestions({ questions, onRefine, refining, className }: Props) {
+  const t = useT();
   const [answers, setAnswers] = useState<Record<string, string>>(
     Object.fromEntries(questions.map((q) => [q.id, ""]))
   );
@@ -41,12 +43,12 @@ export function ClarifyingQuestions({ questions, onRefine, refining, className }
 
   return (
     <Card className={className}>
-      <SectionLabel>Clarifying questions</SectionLabel>
+      <SectionLabel>{t.questions.label}</SectionLabel>
       <h3 className="font-sans text-lg font-semibold text-dome-text-primary mb-2">
-        Refine the analysis
+        {t.questions.title}
       </h3>
       <p className="font-sans text-sm text-dome-text-muted mb-5">
-        Answer any of these questions to improve accuracy. You don&apos;t need to answer all of them.
+        {t.questions.lead}
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -54,7 +56,7 @@ export function ClarifyingQuestions({ questions, onRefine, refining, className }
           <div key={q.id}>
             <div className="flex items-center gap-2 mb-1.5">
               <Badge variant={affectsVariant[q.affects] ?? "default"}>
-                {q.affects}
+                {t.questions.affects[q.affects] ?? q.affects}
               </Badge>
             </div>
             <label
@@ -72,7 +74,7 @@ export function ClarifyingQuestions({ questions, onRefine, refining, className }
               }
               rows={2}
               maxLength={2000}
-              placeholder="Your answer…"
+              placeholder={t.questions.placeholder}
               className="w-full bg-dome-bg-tertiary border border-dome-border rounded-dome px-4 py-2.5 font-sans text-sm text-dome-text-primary placeholder:text-dome-text-muted resize-y focus:border-dome-accent focus:outline-none focus:ring-2 focus:ring-dome-accent/15 transition-colors"
             />
           </div>
@@ -80,7 +82,7 @@ export function ClarifyingQuestions({ questions, onRefine, refining, className }
 
         <div className="flex justify-end pt-2">
           <Button type="submit" loading={refining}>
-            Refine analysis
+            {t.questions.submit}
           </Button>
         </div>
       </form>

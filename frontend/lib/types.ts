@@ -100,10 +100,14 @@ export interface ProcessAnalysis {
 
 // API Request / Response types
 
+/** The interface languages; the backend writes its prose in this one. */
+export type OutputLanguage = "en" | "it" | "nl" | "de";
+
 export interface AnalysisRequest {
   description: string;
   process_name?: string;
   domain_hint?: string;
+  output_language?: OutputLanguage;
 }
 
 export interface AnalysisResponse {
@@ -120,6 +124,7 @@ export interface ClarificationAnswer {
 
 export interface RefineRequest {
   answers: ClarificationAnswer[];
+  output_language?: OutputLanguage;
 }
 
 export interface RefineResponse {

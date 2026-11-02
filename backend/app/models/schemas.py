@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
 from dome_core.governance import GovernanceEvent
 from pydantic import BaseModel, Field
@@ -163,10 +163,16 @@ class AnalysisStatus(str, Enum):
     failed = "failed"
 
 
+# The interface languages (DOME_DECISIONS 2026-11-02, roadmap row 6). Generated prose follows the
+# interface; JSON keys, enum values and step IDs stay canonical English.
+OutputLanguage = Literal["en", "it", "nl", "de"]
+
+
 class AnalysisRequest(BaseModel):
     description: str = Field(min_length=50, max_length=10000)
     process_name: Optional[str] = Field(default=None, max_length=120)
     domain_hint: Optional[str] = None
+    output_language: OutputLanguage = "en"
 
 
 class AnalysisResponse(BaseModel):
@@ -183,6 +189,8 @@ class ClarificationAnswer(BaseModel):
 
 class RefineRequest(BaseModel):
     answers: list[ClarificationAnswer] = Field(min_length=1)
+    # None keeps the language of the analysis being refined.
+    output_language: Optional[OutputLanguage] = None
 
 
 class RefineResponse(BaseModel):
