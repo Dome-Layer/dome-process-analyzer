@@ -194,7 +194,10 @@ def output_language_instruction(language: str) -> str:
         "in English: every JSON key, every enum value (step type, severity, category, "
         "automation_type, implementation_complexity, confidence levels, system_type, "
         "integration_type), every step and system ID, and the Mermaid keywords. Keep product "
-        "and system names (SAP, Coupa, Excel) and regulation names as they are."
+        "and system names (SAP, Coupa, Excel) and regulation names as they are. Write as a "
+        f"native {name} speaker would, with the language's own letters and accents "
+        "(for example ä, ö, ü, ß, à, è, é, ë): never spell them out in plain ASCII "
+        "(not ae, oe, ue, ss)."
     )
 
 

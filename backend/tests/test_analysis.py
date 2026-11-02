@@ -482,6 +482,8 @@ def test_other_language_asks_for_prose_in_it_and_keeps_keys_english(monkeypatch)
     prompt = provider.prompts[0]
     assert "OUTPUT LANGUAGE: write every human-readable text value in German" in prompt
     assert "every JSON key, every enum value" in prompt
+    # Seen on staging: without this the model wrote "laedt" and "ueber" for "lädt" and "über".
+    assert "never spell them out in plain ASCII" in prompt
     assert events[0][1]["output_language"] == "de"
 
 
