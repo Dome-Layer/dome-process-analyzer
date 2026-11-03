@@ -1,5 +1,5 @@
 import { ToolFooter } from "@dome-layer/dome-ui";
 
 export function Footer() {
-  return <ToolFooter toolName="Process Analyzer" />;
+  return <ToolFooter toolName="Process Analyzer" languages />;
 }
